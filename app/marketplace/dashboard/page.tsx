@@ -18,12 +18,17 @@ import {
   ArrowRight,
   CheckCircle,
   Zap,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getJobs,
   getMessages,
   getWorkers,
+  getCurrentUserId,
+  getCurrentUserType,
+  getMatchJobIdsForWorker,
+  getMatchWorkerIdsForJob,
   isMarketplaceDemoLoaded,
   loadMarketplaceDemoData,
 } from "@/lib/marketplace-storage";
@@ -98,6 +103,19 @@ export default function DashboardPage() {
     {}
   );
 
+  // Swipe matches (mutual likes)
+  const userId = getCurrentUserId();
+  const userType = getCurrentUserType();
+  const matchJobIds = userId && userType === "worker" ? getMatchJobIdsForWorker(userId) : [];
+  const matchEntriesByJob =
+    userId && userType === "homeowner"
+      ? jobs
+          .filter((j) => j.posterId === userId)
+          .map((j) => ({ job: j, workerIds: getMatchWorkerIdsForJob(j.id) }))
+          .filter((e) => e.workerIds.length > 0)
+      : [];
+  const hasSwipeMatches = matchJobIds.length > 0 || matchEntriesByJob.length > 0;
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -120,6 +138,28 @@ export default function DashboardPage() {
             Marketplace Dashboard
           </h1>
         </div>
+
+        {/* Swipe matches banner */}
+        {hasSwipeMatches && (
+          <Link href="/marketplace/swipe" className="block mb-4">
+            <Card className="border-rose-200 bg-rose-50/80 hover:bg-rose-50">
+              <CardContent className="flex items-center gap-3 py-3">
+                <Heart className="w-8 h-8 text-rose-500 fill-rose-500" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-slate-900 text-sm">
+                    You have swipe matches
+                  </p>
+                  <p className="text-slate-500 text-xs">
+                    {userType === "worker"
+                      ? `${matchJobIds.length} job${matchJobIds.length !== 1 ? "s" : ""} matched`
+                      : `${matchEntriesByJob.reduce((s, e) => s + e.workerIds.length, 0)} candidate match${matchEntriesByJob.reduce((s, e) => s + e.workerIds.length, 0) !== 1 ? "es" : ""}`}
+                  </p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-rose-500 shrink-0" />
+              </CardContent>
+            </Card>
+          </Link>
+        )}
 
         {/* Tabs */}
         <Tabs defaultValue="jobs">

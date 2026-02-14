@@ -13,6 +13,8 @@ const MK = {
   demoLoaded: 'tradeproof_mp_demo_loaded',
   currentUserId: 'tradeproof_mp_current_user',
   currentUserType: 'tradeproof_mp_current_user_type',
+  workerSwipes: 'tradeproof_mp_worker_swipes',
+  employerSwipes: 'tradeproof_mp_employer_swipes',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -75,6 +77,22 @@ export interface MarketplaceMessage {
   senderName: string;
   text: string;
   timestamp: string;
+}
+
+export type SwipeAction = 'like' | 'pass';
+
+export interface WorkerJobSwipe {
+  workerId: string;
+  jobId: string;
+  action: SwipeAction;
+  at: string;
+}
+
+export interface EmployerWorkerSwipe {
+  jobId: string;
+  workerId: string;
+  action: SwipeAction;
+  at: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -285,6 +303,72 @@ export function autoMatchWorker(job: MarketplaceJob): MarketplaceWorker | null {
 
   scored.sort((a, b) => b.score - a.score);
   return scored[0].worker;
+}
+
+// ---------------------------------------------------------------------------
+// Swipes (Tinder-style: workers swipe on jobs, employers swipe on workers)
+// ---------------------------------------------------------------------------
+
+function getWorkerSwipesRaw(): WorkerJobSwipe[] {
+  if (!isBrowser()) return [];
+  return read<WorkerJobSwipe[]>(MK.workerSwipes) ?? [];
+}
+
+function getEmployerSwipesRaw(): EmployerWorkerSwipe[] {
+  if (!isBrowser()) return [];
+  return read<EmployerWorkerSwipe[]>(MK.employerSwipes) ?? [];
+}
+
+export function recordWorkerSwipe(workerId: string, jobId: string, action: SwipeAction): void {
+  if (!isBrowser()) return;
+  const swipes = getWorkerSwipesRaw();
+  if (swipes.some((s) => s.workerId === workerId && s.jobId === jobId)) return;
+  swipes.push({ workerId, jobId, action, at: new Date().toISOString() });
+  write(MK.workerSwipes, swipes);
+}
+
+export function recordEmployerSwipe(jobId: string, workerId: string, action: SwipeAction): void {
+  if (!isBrowser()) return;
+  const swipes = getEmployerSwipesRaw();
+  if (swipes.some((s) => s.jobId === jobId && s.workerId === workerId)) return;
+  swipes.push({ jobId, workerId, action, at: new Date().toISOString() });
+  write(MK.employerSwipes, swipes);
+}
+
+export function getWorkerSwipedJobIds(workerId: string): { liked: string[]; passed: string[] } {
+  const swipes = getWorkerSwipesRaw().filter((s) => s.workerId === workerId);
+  return {
+    liked: swipes.filter((s) => s.action === 'like').map((s) => s.jobId),
+    passed: swipes.filter((s) => s.action === 'pass').map((s) => s.jobId),
+  };
+}
+
+export function getEmployerSwipedWorkerIds(jobId: string): { liked: string[]; passed: string[] } {
+  const swipes = getEmployerSwipesRaw().filter((s) => s.jobId === jobId);
+  return {
+    liked: swipes.filter((s) => s.action === 'like').map((s) => s.workerId),
+    passed: swipes.filter((s) => s.action === 'pass').map((s) => s.workerId),
+  };
+}
+
+/** Jobs the worker liked where the employer also liked the worker (mutual match). */
+export function getMatchJobIdsForWorker(workerId: string): string[] {
+  const { liked: workerLikedJobs } = getWorkerSwipedJobIds(workerId);
+  return workerLikedJobs.filter((jobId) => {
+    const job = getJob(jobId);
+    if (!job) return false;
+    const { liked: employerLiked } = getEmployerSwipedWorkerIds(jobId);
+    return employerLiked.includes(workerId);
+  });
+}
+
+/** Workers the employer liked for this job who also liked the job (mutual match). */
+export function getMatchWorkerIdsForJob(jobId: string): string[] {
+  const { liked: employerLiked } = getEmployerSwipedWorkerIds(jobId);
+  return employerLiked.filter((workerId) => {
+    const { liked: workerLikedJobs } = getWorkerSwipedJobIds(workerId);
+    return workerLikedJobs.includes(jobId);
+  });
 }
 
 // ---------------------------------------------------------------------------

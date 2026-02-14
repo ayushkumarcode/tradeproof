@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { Briefcase, Users, Shield, Store, ChevronRight } from "lucide-react";
+import { Briefcase, Users, Shield, Store, ChevronRight, Heart } from "lucide-react";
 import {
   isMarketplaceDemoLoaded,
   loadMarketplaceDemoData,
@@ -43,6 +43,26 @@ export default function MarketplacePage() {
             scores.
           </p>
         </div>
+
+        {/* Swipe to Match */}
+        <Link href="/marketplace/swipe" className="block group mb-6">
+          <Card className="hover:shadow-lg transition-all cursor-pointer border-2 border-rose-200 bg-gradient-to-br from-rose-50 to-white hover:border-rose-300">
+            <CardContent className="flex items-center gap-4 py-5">
+              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-rose-500 flex items-center justify-center group-hover:bg-rose-600 transition-colors">
+                <Heart className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="font-semibold text-slate-900 text-lg">
+                  Swipe to Match
+                </h2>
+                <p className="text-slate-500 text-sm mt-0.5">
+                  Workers swipe on jobs · Employers swipe on candidates
+                </p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-rose-500 flex-shrink-0 transition-colors" />
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Browse Jobs & Browse Workers */}
         <div className="space-y-4 mb-8">
