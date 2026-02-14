@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Camera, BarChart3, BookOpen, User } from "lucide-react";
+import { Camera, BarChart3, Store, BookOpen, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/analyze", label: "Check", icon: Camera },
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
+  { href: "/marketplace", label: "Market", icon: Store },
   { href: "/knowledge", label: "Learn", icon: BookOpen },
   { href: "/credential/demo-alex-smith", label: "Profile", icon: User },
 ];
