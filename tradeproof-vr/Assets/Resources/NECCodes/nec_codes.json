@@ -1,0 +1,76 @@
+{
+  "codes": [
+    {
+      "code": "310.16",
+      "title": "Conductor Ampacity — Allowable Ampacities",
+      "section": "Article 310 — Conductors for General Wiring",
+      "simplifiedExplanation": "This table specifies the maximum current a wire can safely carry based on its gauge (size) and insulation type. For copper conductors at 60C: 14 AWG = 15A, 12 AWG = 20A, 10 AWG = 30A, 8 AWG = 40A, 6 AWG = 55A. Using undersized wire creates a fire hazard because the wire will overheat under load.",
+      "visualHintText": "Check wire thickness vs breaker rating: 14 AWG (thinnest) = 15A max, 12 AWG = 20A max, 10 AWG = 30A max. Thicker wire = more ampacity.",
+      "category": "wiring",
+      "relatedCodes": ["240.4", "210.3"]
+    },
+    {
+      "code": "408.4",
+      "title": "Circuit Directory or Circuit Identification",
+      "section": "Article 408 — Switchboards, Switchgear, and Panelboards",
+      "simplifiedExplanation": "Every circuit breaker panel must have a legible directory that identifies each circuit by location and purpose. The directory must be mounted on the panel door or immediately adjacent. Each circuit must be clearly labeled (e.g., 'Kitchen Outlets', 'Master Bedroom', 'HVAC'). Blank or illegible directories are code violations.",
+      "visualHintText": "Look at the panel door — is there a complete, legible label for every breaker? Each breaker number must have a description.",
+      "category": "labeling",
+      "relatedCodes": ["408.4(A)", "408.4(B)"]
+    },
+    {
+      "code": "408.7",
+      "title": "Unused Openings",
+      "section": "Article 408 — Switchboards, Switchgear, and Panelboards",
+      "simplifiedExplanation": "All unused openings (knockout holes) in panel enclosures must be effectively closed to afford protection substantially equivalent to the wall of the enclosure. This means installing listed knockout filler plates. Open holes expose live components to contact by fingers, tools, pests, and debris — creating shock and fire hazards.",
+      "visualHintText": "Check all sides of the panel enclosure — are there any open holes that should be covered with a knockout filler plate?",
+      "category": "enclosure",
+      "relatedCodes": ["110.12", "312.5"]
+    },
+    {
+      "code": "408.41",
+      "title": "Grounded and Ungrounded Conductor Terminations",
+      "section": "Article 408 — Switchboards, Switchgear, and Panelboards",
+      "simplifiedExplanation": "Each breaker terminal is designed for one conductor only, unless the breaker is specifically listed and labeled for multiple conductors. 'Double-tapping' — connecting two wires to one breaker terminal — causes loose connections, arcing, and potential fire. The fix is to install a tandem breaker or add a separate breaker for the second circuit.",
+      "visualHintText": "Examine each breaker terminal closely — are two wires crammed into any single terminal? That is double-tapping and a serious violation.",
+      "category": "breaker",
+      "relatedCodes": ["110.14"]
+    },
+    {
+      "code": "408.54",
+      "title": "Maximum Number of Overcurrent Devices",
+      "section": "Article 408 — Switchboards, Switchgear, and Panelboards",
+      "simplifiedExplanation": "A panelboard must not contain more overcurrent devices (circuit breakers or fuses) than the number for which the panelboard was designed, rated, and listed. The maximum number of spaces is marked on the panel data plate. Exceeding this number by using tandem breakers in non-tandem-rated slots is a violation.",
+      "visualHintText": "Count all breakers including tandems — the total must not exceed the number on the panel's rating label (e.g., '24 spaces / 42 circuits').",
+      "category": "enclosure",
+      "relatedCodes": ["408.54"]
+    },
+    {
+      "code": "250.50",
+      "title": "Grounding Electrode System",
+      "section": "Article 250 — Grounding and Bonding",
+      "simplifiedExplanation": "A grounding electrode system must include all grounding electrodes that are present at a building: metal underground water pipe, metal frame of the building, concrete-encased electrode (Ufer ground), ground ring, rod and pipe electrodes, and plate electrodes. All electrodes present must be bonded together. The grounding electrode conductor connects this system to the service equipment (panel). Proper grounding protects against electric shock, lightning, and equipment damage.",
+      "visualHintText": "Trace the ground wire from the ground bar — does it connect properly to a grounding electrode? Check for continuity of the grounding path.",
+      "category": "grounding",
+      "relatedCodes": ["250.52", "250.53", "250.64"]
+    },
+    {
+      "code": "200.6",
+      "title": "Means of Identifying Grounded Conductors",
+      "section": "Article 200 — Use and Identification of Grounded Conductors",
+      "simplifiedExplanation": "The grounded (neutral) conductor must be identified by a continuous white or gray outer finish, or by three continuous white or gray stripes along the conductor's length. This ensures the neutral can always be distinguished from hot conductors.",
+      "visualHintText": "The neutral wire should be white or gray. Connect it to the neutral (silver-colored) bus bar, not the hot bus.",
+      "category": "wiring",
+      "relatedCodes": ["200.7", "210.5"]
+    },
+    {
+      "code": "210.21",
+      "title": "Outlet Devices — Receptacle Rating",
+      "section": "Article 210 — Branch Circuits",
+      "simplifiedExplanation": "Receptacle outlets must have an amperage rating appropriate for the branch circuit. On a single-receptacle circuit, the receptacle must match the circuit rating exactly. On a multi-receptacle circuit: 15A circuit allows only 15A receptacles; 20A circuit allows both 15A and 20A receptacles; 30A+ circuits require exact match. A 20A receptacle has a distinctive T-shaped neutral slot to accept 20A plugs.",
+      "visualHintText": "Check the receptacle face plate — what amperage is stamped on it? On a 15A circuit only 15A outlets are allowed. On a 20A circuit you can use 15A or 20A outlets.",
+      "category": "outlet",
+      "relatedCodes": ["210.21(B)", "Table 210.21(B)(3)"]
+    }
+  ]
+}

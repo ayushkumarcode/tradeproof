@@ -1,0 +1,48 @@
+{
+  "taskId": "panel-inspection-residential",
+  "taskName": "Residential Panel Inspection",
+  "description": "Identify NEC code violations in a residential electrical panel",
+  "difficulty": "beginner",
+  "badgeAwarded": "panel-inspection-level-1",
+  "timeLimit": 180,
+  "passingScore": 80,
+  "violations": [
+    {
+      "id": "double-tap-1",
+      "type": "double-tapped-breaker",
+      "necCode": "408.41",
+      "description": "Two conductors terminated under a single-pole breaker not rated for double-tapping",
+      "localPosition": { "x": -0.05, "y": 0.15, "z": 0.02 },
+      "hintText": "Check breaker #3 — how many wires are connected to a single terminal?",
+      "severity": "critical"
+    },
+    {
+      "id": "missing-knockout-1",
+      "type": "missing-knockout-cover",
+      "necCode": "408.7",
+      "description": "Open knockout hole without a cover plate exposing interior of panel",
+      "localPosition": { "x": 0.12, "y": -0.1, "z": 0.0 },
+      "hintText": "Look at the bottom right of the panel — is every opening covered?",
+      "severity": "major"
+    },
+    {
+      "id": "wrong-gauge-1",
+      "type": "incorrect-wire-gauge",
+      "necCode": "310.16",
+      "description": "14 AWG wire connected to a 20A breaker — requires 12 AWG minimum per NEC Table 310.16",
+      "localPosition": { "x": -0.03, "y": 0.05, "z": 0.02 },
+      "hintText": "Check the wire thickness on breaker #7 — does the gauge match the 20A rating?",
+      "severity": "critical"
+    },
+    {
+      "id": "no-directory-1",
+      "type": "missing-directory",
+      "necCode": "408.4",
+      "description": "Panel directory is missing — all circuits must be identified with a legible label",
+      "localPosition": { "x": 0.0, "y": 0.30, "z": 0.01 },
+      "hintText": "Is there a label on the panel door telling you what each breaker controls?",
+      "severity": "major"
+    }
+  ],
+  "steps": []
+}

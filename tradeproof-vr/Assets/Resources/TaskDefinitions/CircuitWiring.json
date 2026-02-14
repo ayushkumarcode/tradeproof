@@ -1,0 +1,165 @@
+{
+  "taskId": "circuit-wiring-20a",
+  "taskName": "20A Circuit Wiring",
+  "description": "Wire a complete 20-amp circuit from the electrical panel to an outlet box following NEC code requirements",
+  "difficulty": "intermediate",
+  "badgeAwarded": "circuit-wiring-level-1",
+  "timeLimit": 300,
+  "passingScore": 80,
+  "violations": [],
+  "steps": [
+    {
+      "id": "select-wire-gauge",
+      "order": 1,
+      "description": "Select the correct wire gauge for a 20A circuit",
+      "necCode": "310.16",
+      "action": "select-wire",
+      "targetComponent": "wire-spool",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "wire-gauge",
+        "expectedValue": "12",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "A 20A circuit requires 12 AWG wire minimum per NEC Table 310.16. Look for the wire spool labeled 12 AWG."
+    },
+    {
+      "id": "route-wire",
+      "order": 2,
+      "description": "Route the wire from the electrical panel to the outlet box",
+      "necCode": "",
+      "action": "route-wire",
+      "targetComponent": "wire-path",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "position",
+        "expectedValue": "",
+        "snapPointId": "",
+        "tolerance": 0.05
+      },
+      "hintText": "Pick up the wire and route it from the panel area to the outlet box. Keep the wire run neat and direct."
+    },
+    {
+      "id": "strip-wire-ends",
+      "order": 3,
+      "description": "Strip the insulation from the wire ends (approximately 3/4 inch)",
+      "necCode": "",
+      "action": "strip-wire",
+      "targetComponent": "wire-strippers",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "stripped",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Pick up the wire strippers and use them on both ends of each conductor to remove insulation. Expose about 3/4 inch of bare wire."
+    },
+    {
+      "id": "connect-hot-to-breaker",
+      "order": 4,
+      "description": "Connect the hot (black) wire to the 20A breaker terminal",
+      "necCode": "408.41",
+      "action": "connect-hot-to-breaker",
+      "targetComponent": "breaker-terminal",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "black",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "hot",
+        "snapPointId": "breaker-hot-terminal",
+        "tolerance": 0.02
+      },
+      "hintText": "Take the black (hot) wire end and connect it to the screw terminal on the 20A breaker. Only one wire per terminal (NEC 408.41)."
+    },
+    {
+      "id": "connect-neutral-to-bar",
+      "order": 5,
+      "description": "Connect the neutral (white) wire to the neutral bus bar",
+      "necCode": "200.6",
+      "action": "connect-neutral-to-bar",
+      "targetComponent": "neutral-bar",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "white",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "neutral",
+        "snapPointId": "neutral-bar-terminal",
+        "tolerance": 0.02
+      },
+      "hintText": "Connect the white (neutral) wire to an open terminal on the neutral bus bar (silver-colored bar)."
+    },
+    {
+      "id": "connect-ground-to-bar",
+      "order": 6,
+      "description": "Connect the ground (bare/green) wire to the ground bus bar",
+      "necCode": "250.50",
+      "action": "connect-ground-to-bar",
+      "targetComponent": "ground-bar",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "green",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "ground",
+        "snapPointId": "ground-bar-terminal",
+        "tolerance": 0.02
+      },
+      "hintText": "Connect the bare copper or green ground wire to an open terminal on the ground bus bar."
+    },
+    {
+      "id": "connect-wires-at-outlet",
+      "order": 7,
+      "description": "Connect all three wires to the outlet receptacle terminals",
+      "necCode": "210.21",
+      "action": "connect-outlet-wires",
+      "targetComponent": "outlet-terminals",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "snap-multiple",
+        "expectedValue": "all-connected",
+        "snapPointId": "outlet-terminals",
+        "tolerance": 0.02
+      },
+      "hintText": "At the outlet: black wire goes to brass screw (hot), white wire to silver screw (neutral), ground wire to green screw."
+    },
+    {
+      "id": "secure-breaker",
+      "order": 8,
+      "description": "Secure the breaker into the panel by pressing it onto the bus bar",
+      "necCode": "",
+      "action": "insert-breaker",
+      "targetComponent": "breaker-slot",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "seated",
+        "snapPointId": "breaker-slot",
+        "tolerance": 0.02
+      },
+      "hintText": "Press the breaker firmly into an open panel slot until it clicks onto the bus bar."
+    },
+    {
+      "id": "label-circuit",
+      "order": 9,
+      "description": "Label the circuit in the panel directory",
+      "necCode": "408.4",
+      "action": "label-directory",
+      "targetComponent": "panel-directory",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "labeled",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Write the circuit description on the panel directory next to the breaker number. Example: 'Kitchen Outlets - 20A' (NEC 408.4)."
+    }
+  ]
+}
