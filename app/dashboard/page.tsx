@@ -20,8 +20,15 @@ import {
   getProfile,
   getAnalyses,
   getSkillScores,
+  isDemoLoaded,
+  loadDemoDataFromSeed,
 } from "@/lib/storage";
 import type { Analysis, SkillScore, UserProfile } from "@/lib/storage";
+import {
+  DEMO_PROFILE,
+  DEMO_ANALYSES,
+  DEMO_SKILL_SCORES,
+} from "@/data/demo-data";
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -30,8 +37,20 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isDemoLoaded()) {
+      loadDemoDataFromSeed(DEMO_PROFILE, DEMO_ANALYSES, DEMO_SKILL_SCORES);
+    }
+    let analysesList = getAnalyses();
+    // If any demo analysis still has a photo (old seed with images), re-seed to use current seed (no demo images)
+    const hasOldDemoWithImages = analysesList.some(
+      (a) => a.id.startsWith("demo-") && a.photoUrl?.trim()
+    );
+    if (hasOldDemoWithImages) {
+      loadDemoDataFromSeed(DEMO_PROFILE, DEMO_ANALYSES, DEMO_SKILL_SCORES);
+      analysesList = getAnalyses();
+    }
     setProfile(getProfile());
-    setAnalyses(getAnalyses());
+    setAnalyses(analysesList);
     setSkillScores(getSkillScores());
     setLoading(false);
   }, []);
@@ -202,7 +221,20 @@ export default function DashboardPage() {
                 <Link key={a.id} href={`/results/${a.id}`}>
                   <Card className="hover:border-blue-200 transition-colors cursor-pointer mb-2">
                     <CardContent className="pt-4 pb-4">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {a.photoUrl ? (
+                          <div className="w-14 h-14 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                            <img
+                              src={a.photoUrl}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-14 h-14 rounded-lg bg-slate-100 shrink-0 flex items-center justify-center border border-slate-200">
+                            <BarChart3 className="w-6 h-6 text-slate-400" />
+                          </div>
+                        )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-sm font-medium text-slate-800 capitalize">
@@ -220,7 +252,7 @@ export default function DashboardPage() {
                               ) : (
                                 <AlertTriangle className="w-3 h-3 mr-0.5" />
                               )}
-                              {a.complianceScore}%
+                              {(a.fixComplianceScore ?? a.complianceScore)}%
                             </Badge>
                           </div>
                           <p className="text-xs text-slate-400">

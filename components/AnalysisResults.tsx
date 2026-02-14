@@ -145,6 +145,12 @@ export default function AnalysisResults({
               src={photoUrl}
               alt="Analyzed work photo"
               className="w-full h-auto max-h-48 object-contain bg-slate-50"
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200"><rect fill="#f1f5f9" width="400" height="200"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="14">Photo unavailable</text></svg>');
+              }}
             />
           </div>
         </Card>

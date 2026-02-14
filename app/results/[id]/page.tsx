@@ -17,14 +17,91 @@ import {
   MapPin,
   BarChart3,
   BookOpen,
+  RefreshCw,
+  ChevronRight,
 } from "lucide-react";
 import {
   getAnalysis,
   updateAnalysis,
+  isDemoLoaded,
+  loadDemoDataFromSeed,
 } from "@/lib/storage";
 import type { Analysis } from "@/lib/storage";
+import {
+  DEMO_PROFILE,
+  DEMO_ANALYSES,
+  DEMO_SKILL_SCORES,
+} from "@/data/demo-data";
 import { getRelevantClips } from "@/data/knowledge-clips";
 import type { KnowledgeClip } from "@/data/knowledge-clips";
+
+type RecheckResultState = {
+  originalViolationStatus: { description: string; status: "resolved" | "unresolved" | "partially_resolved" }[];
+  newViolationsFound: string[];
+  complianceScore: number;
+  isCompliant: boolean;
+};
+
+/** Build violations list for recheck API. For a subsequent round, use previous fix result. */
+function buildOriginalViolationsForRecheck(analysis: Analysis): { description: string; code_section: string; severity: string; fix_instruction: string }[] {
+  const fix = analysis.fixAnalysis as {
+    original_violation_status?: { original_description: string; original_code_section?: string; status: string }[];
+    new_violations_found?: { description: string; code_section: string; severity: string; fix_instruction: string }[];
+  } | undefined;
+  if (!fix?.original_violation_status?.length && !fix?.new_violations_found?.length) {
+    return analysis.violations.map((v) => ({
+      description: v.description,
+      code_section: v.codeSection,
+      severity: v.severity,
+      fix_instruction: v.fixInstruction,
+    }));
+  }
+  const list: { description: string; code_section: string; severity: string; fix_instruction: string }[] = [];
+  for (const vs of fix.original_violation_status || []) {
+    if (vs.status === "resolved") continue;
+    const match = analysis.violations.find((v) => v.description === vs.original_description);
+    list.push({
+      description: vs.original_description,
+      code_section: vs.original_code_section || match?.codeSection || "NEC",
+      severity: match?.severity || "major",
+      fix_instruction: match?.fixInstruction || "Address the violation.",
+    });
+  }
+  for (const nv of fix.new_violations_found || []) {
+    list.push({
+      description: nv.description,
+      code_section: nv.code_section,
+      severity: nv.severity,
+      fix_instruction: nv.fix_instruction,
+    });
+  }
+  return list;
+}
+
+function getBeforeImageForRecheck(analysis: Analysis): string {
+  return analysis.fixedPhotoUrl || analysis.photoUrl;
+}
+
+function isImageUrlValid(url: string): boolean {
+  return (
+    url.startsWith("data:image/") ||
+    url.startsWith("https://") ||
+    url.startsWith("http://")
+  );
+}
+
+/** Fetch an image from URL and return as base64 data URL for the recheck API. */
+async function imageUrlToBase64(url: string): Promise<string> {
+  const res = await fetch(url, { mode: "cors" });
+  if (!res.ok) throw new Error(`Failed to load image: ${res.status}`);
+  const blob = await res.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
 export default function ResultsPage() {
   const params = useParams();
@@ -35,16 +112,19 @@ export default function ResultsPage() {
   const [showRecheck, setShowRecheck] = useState(false);
   const [fixedImage, setFixedImage] = useState<string | null>(null);
   const [isRechecking, setIsRechecking] = useState(false);
-  const [recheckResult, setRecheckResult] = useState<{
-    originalViolationStatus: { description: string; status: "resolved" | "unresolved" | "partially_resolved" }[];
-    newViolationsFound: string[];
-    complianceScore: number;
-    isCompliant: boolean;
-  } | null>(null);
+  const [recheckResult, setRecheckResult] = useState<RecheckResultState | null>(null);
   const [relevantClips, setRelevantClips] = useState<KnowledgeClip[]>([]);
 
   useEffect(() => {
-    const data = getAnalysis(id);
+    if (!isDemoLoaded()) {
+      loadDemoDataFromSeed(DEMO_PROFILE, DEMO_ANALYSES, DEMO_SKILL_SCORES);
+    }
+    let data = getAnalysis(id);
+    // If this is a demo analysis that still has a photo (old seed), re-seed to use current seed (no demo images)
+    if (data?.id.startsWith("demo-") && data.photoUrl?.trim()) {
+      loadDemoDataFromSeed(DEMO_PROFILE, DEMO_ANALYSES, DEMO_SKILL_SCORES);
+      data = getAnalysis(id) ?? data;
+    }
     if (data) {
       setAnalysis(data);
 
@@ -64,6 +144,7 @@ export default function ResultsPage() {
 
   function handleRecheckClick() {
     setShowRecheck(true);
+    setFixedImage(null);
   }
 
   async function handleSubmitRecheck() {
@@ -72,19 +153,33 @@ export default function ResultsPage() {
     setIsRechecking(true);
 
     try {
-      // Build violations array in API format
-      const originalViolations = analysis.violations.map((v) => ({
-        description: v.description,
-        code_section: v.codeSection,
-        severity: v.severity,
-        fix_instruction: v.fixInstruction,
-      }));
+      const beforeImage = getBeforeImageForRecheck(analysis);
+      const originalViolations = buildOriginalViolationsForRecheck(analysis);
+
+      if (!beforeImage || !isImageUrlValid(beforeImage)) {
+        alert(
+          "Original photo is missing or invalid. Re-check compares your new photo to the previous one."
+        );
+        setIsRechecking(false);
+        return;
+      }
+
+      if (originalViolations.length === 0) {
+        alert("There are no remaining violations to re-check. Your previous fix resolved everything.");
+        setIsRechecking(false);
+        return;
+      }
+
+      const originalImageBase64 =
+        beforeImage.startsWith("data:image/")
+          ? beforeImage
+          : await imageUrlToBase64(beforeImage);
 
       const response = await fetch("/api/recheck", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          originalImage: analysis.photoUrl,
+          originalImage: originalImageBase64,
           fixedImage,
           originalViolations,
           jurisdiction: analysis.jurisdiction,
@@ -98,10 +193,9 @@ export default function ResultsPage() {
 
       const result = await response.json();
 
-      // Map the API response to the BeforeAfter component format
-      const mappedResult = {
+      const mappedResult: RecheckResultState = {
         originalViolationStatus: (result.original_violation_status || []).map(
-          (vs: { original_description: string; status: string; notes?: string }) => ({
+          (vs: { original_description: string; status: string }) => ({
             description: vs.original_description,
             status: vs.status as "resolved" | "unresolved" | "partially_resolved",
           })
@@ -115,15 +209,25 @@ export default function ResultsPage() {
 
       setRecheckResult(mappedResult);
 
-      // Update analysis in localStorage
+      const revisionHistory = [...(analysis.revisionHistory || [])];
+      if (analysis.fixedPhotoUrl && analysis.fixAnalysis) {
+        revisionHistory.push({
+          fixedPhotoUrl: analysis.fixedPhotoUrl,
+          complianceScore: analysis.fixComplianceScore ?? 0,
+          isCompliant: analysis.fixVerified ?? false,
+          fixAnalysis: analysis.fixAnalysis,
+          createdAt: new Date().toISOString(),
+        });
+      }
+
       updateAnalysis(id, {
         fixedPhotoUrl: fixedImage,
         fixVerified: result.is_compliant,
         fixComplianceScore: result.compliance_score,
         fixAnalysis: result,
+        revisionHistory,
       });
 
-      // Refresh the analysis data
       const updated = getAnalysis(id);
       if (updated) setAnalysis(updated);
 
@@ -166,7 +270,6 @@ export default function ResultsPage() {
     );
   }
 
-  // Map Analysis to the AnalysisResults component interface
   const analysisForComponent = {
     description: analysis.overallAssessment,
     isCompliant: analysis.isCompliant,
@@ -176,6 +279,11 @@ export default function ResultsPage() {
     skillsDemonstrated: analysis.skillsDemonstrated.map((s) => s.skill),
     overallAssessment: analysis.overallAssessment,
   };
+
+  const hasExistingFix = analysis.fixAnalysis && analysis.fixedPhotoUrl;
+  const beforeImageForDisplay = (analysis.revisionHistory?.length ?? 0) > 0
+    ? analysis.revisionHistory![analysis.revisionHistory!.length - 1]!.fixedPhotoUrl
+    : analysis.photoUrl;
 
   return (
     <div className="min-h-screen bg-white">
@@ -211,11 +319,45 @@ export default function ResultsPage() {
           })}
         </p>
 
-        {/* Re-check result (Before/After) */}
+        {/* Work photo — always show when we have one */}
+        {analysis.photoUrl && (
+          <div className="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+            <img
+              src={analysis.photoUrl}
+              alt="Work submitted for analysis"
+              className="w-full h-auto max-h-72 object-contain"
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200"><rect fill="#f1f5f9" width="400" height="200"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="14">Photo unavailable</text></svg>');
+              }}
+            />
+          </div>
+        )}
+
+        {/* Thread summary: rounds */}
+        {hasExistingFix && (
+          <div className="mb-4 flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-slate-500">Thread:</span>
+            <span className="text-xs font-medium text-slate-700">
+              Round 1: {analysis.complianceScore}%
+              {(analysis.revisionHistory?.length ?? 0) > 0 &&
+                analysis.revisionHistory!.map((r, i) => (
+                  <span key={i}> → Round {i + 2}: {r.complianceScore}%</span>
+                ))}
+              {hasExistingFix && (
+                <span> → Current: {analysis.fixComplianceScore}%</span>
+              )}
+            </span>
+          </div>
+        )}
+
+        {/* Re-check result (Before/After) — just submitted */}
         {recheckResult && (
           <div className="mb-6">
             <BeforeAfter
-              beforeImage={analysis.photoUrl}
+              beforeImage={beforeImageForDisplay}
               afterImage={fixedImage || ""}
               originalViolations={analysis.violations.map(
                 (v) => v.description
@@ -226,17 +368,17 @@ export default function ResultsPage() {
         )}
 
         {/* Show previously stored recheck if exists */}
-        {!recheckResult && analysis.fixAnalysis && analysis.fixedPhotoUrl && (
+        {!recheckResult && hasExistingFix && (
           <div className="mb-6">
             <BeforeAfter
-              beforeImage={analysis.photoUrl}
-              afterImage={analysis.fixedPhotoUrl}
+              beforeImage={beforeImageForDisplay}
+              afterImage={analysis.fixedPhotoUrl!}
               originalViolations={analysis.violations.map(
                 (v) => v.description
               )}
               recheckResult={{
                 originalViolationStatus: (
-                  analysis.fixAnalysis.original_violation_status || []
+                  (analysis.fixAnalysis as { original_violation_status?: { original_description: string; status: string }[] }).original_violation_status || []
                 ).map(
                   (vs: { original_description: string; status: string }) => ({
                     description: vs.original_description,
@@ -247,22 +389,44 @@ export default function ResultsPage() {
                   })
                 ),
                 newViolationsFound: (
-                  analysis.fixAnalysis.new_violations_found || []
+                  (analysis.fixAnalysis as { new_violations_found?: { description: string }[] }).new_violations_found || []
                 ).map((nv: { description: string }) => nv.description),
-                complianceScore: analysis.fixAnalysis.compliance_score,
-                isCompliant: analysis.fixAnalysis.is_compliant,
+                complianceScore: (analysis.fixAnalysis as { compliance_score: number }).compliance_score,
+                isCompliant: (analysis.fixAnalysis as { is_compliant: boolean }).is_compliant,
               }}
             />
           </div>
         )}
 
-        {/* Main analysis results */}
-        {!recheckResult && !analysis.fixAnalysis && (
+        {/* Main analysis results — no fix yet */}
+        {!recheckResult && !hasExistingFix && (
           <AnalysisResults
             analysis={analysisForComponent}
-            onRecheck={handleRecheckClick}
+            onRecheck={
+              isImageUrlValid(analysis.photoUrl || "")
+                ? handleRecheckClick
+                : () =>
+                    alert(
+                      "Re-check isn't available — no photo was saved for this analysis. Run a new Check My Work, then use re-check."
+                    )
+            }
             photoUrl={analysis.photoUrl}
           />
+        )}
+
+        {/* Try again for a better grade — show when there's already a fix and we have a valid before image */}
+        {!showRecheck && hasExistingFix && isImageUrlValid(getBeforeImageForRecheck(analysis)) && (
+          <div className="mb-6">
+            <Button
+              onClick={handleRecheckClick}
+              variant="outline"
+              className="w-full rounded-xl border-blue-200 text-blue-700 hover:bg-blue-50"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Try again for a better grade
+              <ChevronRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
         )}
 
         {/* Re-check flow */}
@@ -271,12 +435,12 @@ export default function ResultsPage() {
             <Card className="border-blue-200 bg-blue-50">
               <CardContent className="pt-6">
                 <h3 className="text-sm font-semibold text-blue-800 mb-3">
-                  Take a photo of your fixed work
+                  {hasExistingFix ? "Take a new photo of your improved work" : "Take a photo of your fixed work"}
                 </h3>
                 <CameraCapture
                   onCapture={(base64) => setFixedImage(base64)}
-                  label="Photo of fixed work"
-                  existingImage={analysis.photoUrl}
+                  label={hasExistingFix ? "Photo of improved work" : "Photo of fixed work"}
+                  existingImage={getBeforeImageForRecheck(analysis)}
                 />
                 {fixedImage && (
                   <Button

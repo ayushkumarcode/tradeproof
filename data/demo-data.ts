@@ -131,7 +131,7 @@ export const DEMO_ANALYSES: Analysis[] = [
     createdAt: '2025-09-30T10:15:00Z',
   },
 
-  // ---- Analysis 3: Oct 8, 2025 - Outlet installation ----
+  // ---- Analysis 3: Oct 8, 2025 - Outlet ---- - Outlet installation ----
   {
     id: 'demo-analysis-3',
     userId: 'demo-alex-smith',
@@ -612,6 +612,94 @@ export const DEMO_ANALYSES: Analysis[] = [
     ],
     overallAssessment: 'Outstanding outdoor installation that demonstrates mastery of multiple code requirements. You correctly addressed wet location requirements (weatherproof box, in-use cover, gel connectors), GFCI protection, proper cable type selection, and burial depth. This is the kind of work that shows an apprentice who is ready for more responsibility. Your growth from September to now is remarkable.',
     createdAt: '2026-02-12T09:15:00Z',
+  },
+
+  // ---- Analysis 16: Jan 28, 2026 - Single re-check (one fix, improved grade) ----
+  {
+    id: 'demo-analysis-16',
+    userId: 'demo-alex-smith',
+    photoUrl: '',
+    jurisdiction: 'California',
+    trade: 'electrical',
+    workType: 'outlet_install',
+    userDescription: 'Added GFCI outlet in garage; first try had box fill issue, fixed and re-submitted',
+    isCompliant: false,
+    complianceScore: 58,
+    violations: [
+      {
+        description: 'Box fill exceeded - too many conductors for box volume per NEC 314.16(B)',
+        codeSection: 'NEC 314.16',
+        severity: 'major',
+        confidence: 'high',
+        fixInstruction: 'Use a deeper 22 cu in (or larger) box or reduce conductors. Calculate volume per 314.16(B).',
+        whyThisMatters: 'Overfilled boxes lead to heat and damaged insulation.',
+      },
+      {
+        description: 'Grounding conductor not bonded to the box with a grounding screw or clip',
+        codeSection: 'NEC 250.148',
+        severity: 'major',
+        confidence: 'high',
+        fixInstruction: 'Connect the equipment grounding conductor(s) to the box using a listed grounding screw or clip.',
+        whyThisMatters: 'The box must be grounded for fault current path.',
+      },
+    ],
+    correctItems: [
+      'GFCI outlet correctly installed for garage wet location',
+      '12 AWG wire used for 20A circuit',
+    ],
+    skillsDemonstrated: [
+      { skill: 'Box Fill', quality: 'needs_work' },
+      { skill: 'Grounding', quality: 'needs_work' },
+    ],
+    overallAssessment: 'Initial submission showed box fill and grounding issues. Good candidate for a re-check after fixes.',
+    createdAt: '2026-01-28T11:00:00Z',
+  },
+
+  // ---- Analysis 17: Feb 10, 2026 - Multiple re-checks (thread: 52% → 78% → 91%) ----
+  {
+    id: 'demo-analysis-17',
+    userId: 'demo-alex-smith',
+    photoUrl: '',
+    jurisdiction: 'California',
+    trade: 'electrical',
+    workType: 'junction_box',
+    userDescription: 'Garage junction box - fixed cable clamp and fill, then improved again for a better grade',
+    isCompliant: false,
+    complianceScore: 52,
+    violations: [
+      {
+        description: 'NM cable not secured within 8 inches of the box',
+        codeSection: 'NEC 334.30',
+        severity: 'major',
+        confidence: 'high',
+        fixInstruction: 'Add staples or listed securing means within 8 in of the box.',
+        whyThisMatters: 'Unsecured cable can be pulled from terminations.',
+      },
+      {
+        description: 'Box overfilled - conductor count exceeds box fill calculation',
+        codeSection: 'NEC 314.16',
+        severity: 'critical',
+        confidence: 'high',
+        fixInstruction: 'Replace with larger box or reduce conductors; recalculate per 314.16(B).',
+        whyThisMatters: 'Overfill causes heat and insulation damage.',
+      },
+      {
+        description: 'No cable connector at box entry',
+        codeSection: 'NEC 314.17(B)',
+        severity: 'major',
+        confidence: 'high',
+        fixInstruction: 'Install listed NM cable connector at each knockout.',
+        whyThisMatters: 'Prevents insulation damage from knockout edges.',
+      },
+    ],
+    correctItems: ['Box is accessible and properly mounted.'],
+    skillsDemonstrated: [
+      { skill: 'Cable Securing', quality: 'needs_work' },
+      { skill: 'Box Fill', quality: 'needs_work' },
+      { skill: 'Mechanical Execution', quality: 'needs_work' },
+    ],
+    overallAssessment: 'First submission had multiple issues. After two rounds of fixes, work improved to passing grade.',
+    createdAt: '2026-02-10T09:00:00Z',
   },
 ];
 

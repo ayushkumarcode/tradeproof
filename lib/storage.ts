@@ -21,10 +21,19 @@ export interface UserProfile {
   createdAt: string;
 }
 
+/** One round of "fix and re-check" in a thread (original → fix 1 → fix 2 → …). */
+export interface AnalysisRevision {
+  fixedPhotoUrl: string;
+  complianceScore: number;
+  isCompliant: boolean;
+  fixAnalysis: unknown;
+  createdAt: string;
+}
+
 export interface Analysis {
   id: string;
   userId: string;
-  photoUrl: string; // base64 data URL
+  photoUrl: string; // base64 data URL — always saved for portfolio
   jurisdiction: string;
   trade: string;
   workType: string;
@@ -35,10 +44,13 @@ export interface Analysis {
   correctItems: string[];
   skillsDemonstrated: SkillDemo[];
   overallAssessment: string;
+  /** Latest fix only (current "after" image and result). */
   fixedPhotoUrl?: string;
   fixVerified?: boolean;
   fixComplianceScore?: number;
-  fixAnalysis?: any;
+  fixAnalysis?: unknown;
+  /** Previous rounds when user did "try again for a better grade". */
+  revisionHistory?: AnalysisRevision[];
   createdAt: string;
 }
 
@@ -131,6 +143,7 @@ export function getAnalyses(): Analysis[] {
 
 export function saveAnalysis(analysis: Analysis): void {
   if (!isBrowser()) return;
+  if (!analysis.photoUrl?.trim()) return; // picture is required for analysis
   const analyses = read<Analysis[]>(KEYS.analyses) ?? [];
   analyses.push(analysis);
   write(KEYS.analyses, analyses);
