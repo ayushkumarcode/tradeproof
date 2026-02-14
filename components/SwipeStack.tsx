@@ -221,12 +221,6 @@ export function SwipeStack<T>({
           <Heart className="w-8 h-8" />
         </button>
       </div>
-      <p className="text-center text-slate-600 text-sm mt-3 font-medium">
-        Drag &amp; drop the card
-      </p>
-      <p className="text-center text-slate-500 text-xs mt-1">
-        Drag right to like · Drag left to pass · Or use the buttons above
-      </p>
     </div>
   );
 }

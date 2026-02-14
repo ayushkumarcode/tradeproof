@@ -308,8 +308,7 @@ export default function SwipePage() {
         DEMO_MESSAGES
       );
     }
-    setUserTypeState(getCurrentUserType());
-    setUserId(getCurrentUserId());
+    // Don't restore saved role: always show "look for jobs or employers" when entering this page
     setLoading(false);
   }, []);
 
@@ -563,15 +562,6 @@ export default function SwipePage() {
           </div>
         )}
 
-        <div className="mb-3 rounded-xl bg-slate-800 text-white px-4 py-3 text-center">
-          <p className="text-sm font-medium">
-            Click and drag the card left or right to choose
-          </p>
-          <p className="text-slate-300 text-xs mt-1">
-            Drag right = like · Drag left = pass · Or use the buttons below
-          </p>
-        </div>
-
         <div className="h-[min(720px,85vh)] max-w-sm mx-auto flex flex-col">
           {isWorkerMode ? (
             <SwipeStack
@@ -627,12 +617,6 @@ export default function SwipePage() {
           )}
         </div>
 
-        <p className="text-center text-slate-500 text-sm mt-3 font-medium">
-          Click and hold the card, then drag it left or right to choose
-        </p>
-        <p className="text-center text-slate-400 text-xs mt-1">
-          Drag right = like · Drag left = pass · Or use the buttons below the card
-        </p>
       </div>
     </div>
   );
