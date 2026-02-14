@@ -34,6 +34,7 @@ export interface Analysis {
   id: string;
   userId: string;
   photoUrl: string; // base64 data URL — always saved for portfolio
+  beforePhotoUrl?: string; // optional "before" photo for before/after comparison
   jurisdiction: string;
   trade: string;
   workType: string;

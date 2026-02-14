@@ -5,7 +5,8 @@ export function buildAnalysisPrompt(
   jurisdiction: string,
   trade: string,
   workType: string,
-  userDescription: string
+  userDescription: string,
+  hasBeforePhoto: boolean = false
 ): string {
   // Get formatted code text for prompt injection
   const codesSections = getCodesForJurisdiction(jurisdiction, workType);
@@ -44,7 +45,9 @@ ${californiaSection}
 
 ## Instructions
 
-1. Carefully analyze the photo of the electrical work.
+${hasBeforePhoto ? `You have been given TWO photos: a BEFORE photo (before work was performed) and an AFTER photo (after work was completed). Compare them to understand what work was done, then analyze the AFTER photo for code compliance. Reference changes you can see between the two photos in your assessment.
+
+` : ''}1. Carefully analyze the ${hasBeforePhoto ? 'before and after photos' : 'photo'} of the electrical work.
 2. Identify any code violations based ONLY on the code sections provided above.
 3. For each violation, cite the specific code section from the list above.
 4. Assess the quality of workmanship and skills demonstrated.
@@ -53,7 +56,8 @@ ${californiaSection}
    - "high": clearly visible and definitively a violation
    - "medium": likely a violation but photo quality or angle makes it hard to be 100% certain
    - "low": potential concern that needs in-person verification
-7. For each violation, explain WHY the code exists — what hazard does it prevent?
+7. For each violation, explain WHY the code exists — what hazard does it prevent?${hasBeforePhoto ? `
+8. In your overall_assessment, mention what changed between the before and after photos.` : ''}
 
 ## Required Response Format
 Respond with ONLY valid JSON in this exact format (no markdown code blocks, no explanation outside the JSON):

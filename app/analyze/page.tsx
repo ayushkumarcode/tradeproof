@@ -23,6 +23,7 @@ export default function AnalyzePage() {
   const router = useRouter();
   const [workType, setWorkType] = useState("");
   const [description, setDescription] = useState("");
+  const [beforeImage, setBeforeImage] = useState<string | null>(null);
   const [image, setImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +45,7 @@ export default function AnalyzePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           image,
+          beforeImage: beforeImage || undefined,
           workType,
           userDescription: description,
           jurisdiction: "California",
@@ -62,6 +64,7 @@ export default function AnalyzePage() {
         id: result.id,
         userId: "demo-alex-smith",
         photoUrl: image,
+        beforePhotoUrl: beforeImage || undefined,
         jurisdiction: result.jurisdiction || "California",
         trade: "electrical",
         workType: result.workType || workType,
@@ -209,7 +212,7 @@ export default function AnalyzePage() {
             </div>
           )}
 
-          {/* Step 3: Camera */}
+          {/* Step 3: Camera — Before & After */}
           {workType && description.trim() && (
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -223,13 +226,45 @@ export default function AnalyzePage() {
                   {image ? <CheckCircle className="w-4 h-4" /> : "3"}
                 </div>
                 <span className="text-sm font-medium text-slate-700">
-                  Capture Photo
+                  Capture Photos
                 </span>
               </div>
-              <CameraCapture
-                onCapture={(base64) => setImage(base64)}
-                label="Take a photo of your work"
-              />
+
+              <div className="space-y-3">
+                {/* Before photo (optional) */}
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-amber-600 bg-amber-50 px-2 py-0.5 rounded">
+                      Before
+                    </span>
+                    <span className="text-xs text-slate-400">Optional</span>
+                  </div>
+                  <CameraCapture
+                    onCapture={(base64) => setBeforeImage(base64)}
+                    label="Photo before work was done"
+                  />
+                </div>
+
+                {/* After photo (required) */}
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-green-600 bg-green-50 px-2 py-0.5 rounded">
+                      After
+                    </span>
+                    <span className="text-xs text-slate-400">Required</span>
+                  </div>
+                  <CameraCapture
+                    onCapture={(base64) => setImage(base64)}
+                    label="Photo after work is completed"
+                  />
+                </div>
+
+                {beforeImage && image && (
+                  <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded-lg text-center">
+                    Both photos captured — AI will compare before &amp; after
+                  </p>
+                )}
+              </div>
             </div>
           )}
 

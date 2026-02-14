@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
 
     const {
       image,
+      beforeImage,
       workType,
       userDescription,
       jurisdiction = 'California',
@@ -39,14 +40,16 @@ export async function POST(request: NextRequest) {
       jurisdiction,
       'electrical',
       workType,
-      userDescription
+      userDescription,
+      !!beforeImage
     );
 
     const result = await analyzePhoto(
       image,
       systemPrompt,
       userDescription,
-      workType
+      workType,
+      beforeImage || undefined
     );
 
     const analysisId = uuidv4();

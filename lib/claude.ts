@@ -65,11 +65,55 @@ export async function analyzePhoto(
   base64Image: string,
   systemPrompt: string,
   userDescription: string,
-  workType: string
+  workType: string,
+  beforeBase64Image?: string
 ): Promise<AnalysisResult> {
   try {
     const cleanBase64 = stripDataUrlPrefix(base64Image);
     const mediaType = detectMediaType(cleanBase64);
+
+    const contentParts: Anthropic.MessageCreateParams['messages'][0]['content'] = [];
+
+    // If a before image is provided, include it first for comparison
+    if (beforeBase64Image) {
+      const cleanBefore = stripDataUrlPrefix(beforeBase64Image);
+      const beforeMediaType = detectMediaType(cleanBefore);
+      contentParts.push(
+        {
+          type: 'text',
+          text: 'Here is the BEFORE photo (before work was performed):',
+        },
+        {
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: beforeMediaType,
+            data: cleanBefore,
+          },
+        },
+        {
+          type: 'text',
+          text: 'Here is the AFTER photo (after work was completed):',
+        }
+      );
+    }
+
+    contentParts.push(
+      {
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: mediaType,
+          data: cleanBase64,
+        },
+      },
+      {
+        type: 'text',
+        text: beforeBase64Image
+          ? `Work type: ${workType}\n\nDescription from the worker: ${userDescription}\n\nPlease compare the before and after photos, analyze the completed work for code compliance, and respond with the JSON format specified in your instructions.`
+          : `Work type: ${workType}\n\nDescription from the worker: ${userDescription}\n\nPlease analyze this photo for code compliance and respond with the JSON format specified in your instructions.`,
+      }
+    );
 
     const response = await client.messages.create({
       model: 'claude-sonnet-4-5-20250929',
@@ -78,20 +122,7 @@ export async function analyzePhoto(
       messages: [
         {
           role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: mediaType,
-                data: cleanBase64,
-              },
-            },
-            {
-              type: 'text',
-              text: `Work type: ${workType}\n\nDescription from the worker: ${userDescription}\n\nPlease analyze this photo for code compliance and respond with the JSON format specified in your instructions.`,
-            },
-          ],
+          content: contentParts,
         },
       ],
     });
