@@ -24,17 +24,25 @@ export default function AnalyzePage() {
   const [workType, setWorkType] = useState("");
   const [description, setDescription] = useState("");
   const [beforeImage, setBeforeImage] = useState<string | null>(null);
-  const [image, setImage] = useState<string | null>(null);
+  const [afterImage, setAfterImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = workType && description.trim() && image && !isAnalyzing;
+  const canSubmit =
+    workType && description.trim() && beforeImage && afterImage && !isAnalyzing;
 
-  const currentStep =
-    !workType ? 1 : !description.trim() ? 2 : !image ? 3 : 4;
+  const currentStep = !workType
+    ? 1
+    : !description.trim()
+      ? 2
+      : !beforeImage
+        ? 3
+        : !afterImage
+          ? 4
+          : 5;
 
   async function handleAnalyze() {
-    if (!canSubmit || !image) return;
+    if (!canSubmit || !beforeImage || !afterImage) return;
 
     setIsAnalyzing(true);
     setError(null);
@@ -44,8 +52,8 @@ export default function AnalyzePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          image,
-          beforeImage: beforeImage || undefined,
+          beforeImage,
+          afterImage,
           workType,
           userDescription: description,
           jurisdiction: "California",
@@ -63,55 +71,58 @@ export default function AnalyzePage() {
       const analysis: Analysis = {
         id: result.id,
         userId: "demo-alex-smith",
-        photoUrl: image,
-        beforePhotoUrl: beforeImage || undefined,
+        photoUrl: beforeImage,
+        fixedPhotoUrl: afterImage,
         jurisdiction: result.jurisdiction || "California",
         trade: "electrical",
         workType: result.workType || workType,
         userDescription: description,
         isCompliant: result.is_compliant,
-        complianceScore: result.compliance_score,
-        violations: (result.violations || []).map(
+        complianceScore: result.after_score || result.compliance_score || 0,
+        violations: (result.violations_found || []).map(
           (v: {
+            id: number;
             description: string;
             code_section: string;
-            local_amendment?: string | null;
             severity: "critical" | "major" | "minor";
-            confidence: "high" | "medium" | "low";
+            status: string;
             fix_instruction: string;
             why_this_matters: string;
-            visual_evidence?: string;
+            location_x: number;
+            location_y: number;
           }) => ({
             description: v.description,
             codeSection: v.code_section,
-            localAmendment: v.local_amendment || undefined,
             severity: v.severity,
-            confidence: v.confidence,
+            confidence: "high" as const,
             fixInstruction: v.fix_instruction,
             whyThisMatters: v.why_this_matters,
-            visualEvidence: v.visual_evidence || undefined,
+            visualEvidence: `Location: ${v.location_x}%, ${v.location_y}%`,
           })
         ),
-        correctItems: result.correct_items || [],
+        correctItems: result.resolved_items || [],
         skillsDemonstrated: (result.skills_demonstrated || []).map(
-          (s: { skill: string; quality: "good" | "acceptable" | "needs_work" }) => ({
+          (s: {
+            skill: string;
+            quality: "good" | "acceptable" | "needs_work";
+          }) => ({
             skill: s.skill,
             quality: s.quality,
           })
         ),
         overallAssessment: result.overall_assessment || "",
         createdAt: result.timestamp || new Date().toISOString(),
+        fixAnalysis: result,
+        fixVerified: result.is_compliant,
+        fixComplianceScore: result.after_score,
       };
 
-      // Save to localStorage
       saveAnalysis(analysis);
 
-      // Update skill scores
       if (analysis.skillsDemonstrated.length > 0) {
         updateSkillScores(analysis.skillsDemonstrated);
       }
 
-      // Navigate to results
       router.push(`/results/${analysis.id}`);
     } catch (err) {
       const message =
@@ -149,7 +160,7 @@ export default function AnalyzePage() {
 
         {/* Progress indicator */}
         <div className="flex items-center gap-2 mb-6">
-          {[1, 2, 3, 4].map((step) => (
+          {[1, 2, 3, 4, 5].map((step) => (
             <div
               key={step}
               className={`h-1.5 flex-1 rounded-full transition-colors ${
@@ -212,63 +223,61 @@ export default function AnalyzePage() {
             </div>
           )}
 
-          {/* Step 3: Camera — Before & After */}
+          {/* Step 3: Before Photo */}
           {workType && description.trim() && (
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                    image
+                    beforeImage
                       ? "bg-green-500 text-white"
                       : "bg-blue-500 text-white"
                   }`}
                 >
-                  {image ? <CheckCircle className="w-4 h-4" /> : "3"}
+                  {beforeImage ? <CheckCircle className="w-4 h-4" /> : "3"}
                 </div>
                 <span className="text-sm font-medium text-slate-700">
-                  Capture Photos
+                  Before Photo
                 </span>
+                <Badge className="bg-red-100 text-red-700 text-xs">
+                  Original Work
+                </Badge>
               </div>
-
-              <div className="space-y-3">
-                {/* Before photo (optional) */}
-                <div>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-amber-600 bg-amber-50 px-2 py-0.5 rounded">
-                      Before
-                    </span>
-                    <span className="text-xs text-slate-400">Optional</span>
-                  </div>
-                  <CameraCapture
-                    onCapture={(base64) => setBeforeImage(base64)}
-                    label="Photo before work was done"
-                  />
-                </div>
-
-                {/* After photo (required) */}
-                <div>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-green-600 bg-green-50 px-2 py-0.5 rounded">
-                      After
-                    </span>
-                    <span className="text-xs text-slate-400">Required</span>
-                  </div>
-                  <CameraCapture
-                    onCapture={(base64) => setImage(base64)}
-                    label="Photo after work is completed"
-                  />
-                </div>
-
-                {beforeImage && image && (
-                  <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded-lg text-center">
-                    Both photos captured — AI will compare before &amp; after
-                  </p>
-                )}
-              </div>
+              <CameraCapture
+                onCapture={(base64) => setBeforeImage(base64)}
+                label="Photo of the original work (before fixes)"
+              />
             </div>
           )}
 
-          {/* Step 4: Submit */}
+          {/* Step 4: After Photo */}
+          {workType && description.trim() && beforeImage && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                    afterImage
+                      ? "bg-green-500 text-white"
+                      : "bg-blue-500 text-white"
+                  }`}
+                >
+                  {afterImage ? <CheckCircle className="w-4 h-4" /> : "4"}
+                </div>
+                <span className="text-sm font-medium text-slate-700">
+                  After Photo
+                </span>
+                <Badge className="bg-green-100 text-green-700 text-xs">
+                  After Fixes
+                </Badge>
+              </div>
+              <CameraCapture
+                onCapture={(base64) => setAfterImage(base64)}
+                label="Photo of the work after your fixes"
+              />
+            </div>
+          )}
+
+          {/* Step 5: Submit */}
           {canSubmit && (
             <div>
               <Button
@@ -279,12 +288,12 @@ export default function AnalyzePage() {
                 {isAnalyzing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Analyzing...
+                    Comparing...
                   </>
                 ) : (
                   <>
                     <Shield className="w-5 h-5" />
-                    Analyze My Work
+                    Analyze Before &amp; After
                   </>
                 )}
               </Button>
@@ -297,7 +306,7 @@ export default function AnalyzePage() {
               <CardContent className="pt-6 text-center">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-3" />
                 <p className="text-sm font-medium text-blue-800">
-                  Analyzing your work...
+                  Comparing before &amp; after...
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
                   Checking against NEC codes and California amendments

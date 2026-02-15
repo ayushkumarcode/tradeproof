@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { analyzePhoto } from '@/lib/claude';
+import { analyzePhoto, analyzeBeforeAfter } from '@/lib/claude';
 import { buildAnalysisPrompt } from '@/lib/prompts/analyze';
+import { buildBeforeAfterPrompt } from '@/lib/prompts/before-after';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,17 +11,11 @@ export async function POST(request: NextRequest) {
     const {
       image,
       beforeImage,
+      afterImage,
       workType,
       userDescription,
       jurisdiction = 'California',
     } = body;
-
-    if (!image) {
-      return NextResponse.json(
-        { error: 'Missing required field: image' },
-        { status: 400 }
-      );
-    }
 
     if (!workType) {
       return NextResponse.json(
@@ -32,6 +27,43 @@ export async function POST(request: NextRequest) {
     if (!userDescription) {
       return NextResponse.json(
         { error: 'Missing required field: userDescription' },
+        { status: 400 }
+      );
+    }
+
+    const analysisId = uuidv4();
+
+    // Before/After mode
+    if (beforeImage && afterImage) {
+      const systemPrompt = buildBeforeAfterPrompt(
+        jurisdiction,
+        'electrical',
+        workType,
+        userDescription
+      );
+
+      const result = await analyzeBeforeAfter(
+        beforeImage,
+        afterImage,
+        systemPrompt,
+        userDescription,
+        workType
+      );
+
+      return NextResponse.json({
+        id: analysisId,
+        timestamp: new Date().toISOString(),
+        jurisdiction,
+        workType,
+        mode: 'before_after',
+        ...result,
+      });
+    }
+
+    // Single photo mode (legacy)
+    if (!image) {
+      return NextResponse.json(
+        { error: 'Missing required field: image (or beforeImage + afterImage)' },
         { status: 400 }
       );
     }
@@ -52,13 +84,12 @@ export async function POST(request: NextRequest) {
       beforeImage || undefined
     );
 
-    const analysisId = uuidv4();
-
     return NextResponse.json({
       id: analysisId,
       timestamp: new Date().toISOString(),
       jurisdiction,
       workType,
+      mode: 'single',
       ...result,
     });
   } catch (error) {

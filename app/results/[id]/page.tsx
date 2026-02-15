@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import AnalysisResults from "@/components/AnalysisResults";
+import ViolationOverlay from "@/components/ViolationOverlay";
+import AnalysisCard from "@/components/AnalysisCard";
 import BeforeAfter from "@/components/BeforeAfter";
 import CameraCapture from "@/components/CameraCapture";
 import KnowledgeCard from "@/components/KnowledgeCard";
@@ -17,6 +19,8 @@ import {
   MapPin,
   BarChart3,
   BookOpen,
+  CheckCircle,
+  ArrowRight,
   RefreshCw,
   ChevronRight,
 } from "lucide-react";
@@ -34,6 +38,7 @@ import {
 } from "@/data/demo-data";
 import { getRelevantClips } from "@/data/knowledge-clips";
 import type { KnowledgeClip } from "@/data/knowledge-clips";
+import { cn } from "@/lib/utils";
 
 type RecheckResultState = {
   originalViolationStatus: { description: string; status: "resolved" | "unresolved" | "partially_resolved" }[];
@@ -42,7 +47,6 @@ type RecheckResultState = {
   isCompliant: boolean;
 };
 
-/** Build violations list for recheck API. For a subsequent round, use previous fix result. */
 function buildOriginalViolationsForRecheck(analysis: Analysis): { description: string; code_section: string; severity: string; fix_instruction: string }[] {
   const fix = analysis.fixAnalysis as {
     original_violation_status?: { original_description: string; original_code_section?: string; status: string }[];
@@ -90,7 +94,6 @@ function isImageUrlValid(url: string): boolean {
   );
 }
 
-/** Fetch an image from URL and return as base64 data URL for the recheck API. */
 async function imageUrlToBase64(url: string): Promise<string> {
   const res = await fetch(url, { mode: "cors" });
   if (!res.ok) throw new Error(`Failed to load image: ${res.status}`);
@@ -120,7 +123,6 @@ export default function ResultsPage() {
       loadDemoDataFromSeed(DEMO_PROFILE, DEMO_ANALYSES, DEMO_SKILL_SCORES);
     }
     let data = getAnalysis(id);
-    // If this is a demo analysis that still has a photo (old seed), re-seed to use current seed (no demo images)
     if (data?.id.startsWith("demo-") && data.photoUrl?.trim()) {
       loadDemoDataFromSeed(DEMO_PROFILE, DEMO_ANALYSES, DEMO_SKILL_SCORES);
       data = getAnalysis(id) ?? data;
@@ -128,10 +130,8 @@ export default function ResultsPage() {
     if (data) {
       setAnalysis(data);
 
-      // Build keywords from work type and violation descriptions
       const keywords: string[] = [data.workType];
       data.violations.forEach((v) => {
-        // Extract key terms from the violation description
         const words = v.description.toLowerCase().split(/\s+/);
         keywords.push(...words.filter((w) => w.length > 4));
         keywords.push(v.codeSection);
@@ -141,6 +141,46 @@ export default function ResultsPage() {
     }
     setLoading(false);
   }, [id]);
+
+  // Check if this is a before/after analysis
+  const isBeforeAfter =
+    analysis?.fixAnalysis?.mode === "before_after" &&
+    analysis?.photoUrl &&
+    analysis?.fixedPhotoUrl;
+
+  // Extract violation markers from the before/after result
+  const violationMarkers =
+    isBeforeAfter && analysis?.fixAnalysis?.violations_found
+      ? (
+          analysis.fixAnalysis.violations_found as {
+            id: number;
+            description: string;
+            code_section: string;
+            severity: "critical" | "major" | "minor";
+            fix_instruction: string;
+            location_x: number;
+            location_y: number;
+          }[]
+        ).map(
+          (v: {
+            id: number;
+            description: string;
+            code_section: string;
+            severity: "critical" | "major" | "minor";
+            fix_instruction: string;
+            location_x: number;
+            location_y: number;
+          }) => ({
+            id: v.id,
+            description: v.description,
+            codeSection: v.code_section,
+            severity: v.severity,
+            fixInstruction: v.fix_instruction,
+            locationX: v.location_x,
+            locationY: v.location_y,
+          })
+        )
+      : [];
 
   function handleRecheckClick() {
     setShowRecheck(true);
@@ -197,7 +237,10 @@ export default function ResultsPage() {
         originalViolationStatus: (result.original_violation_status || []).map(
           (vs: { original_description: string; status: string }) => ({
             description: vs.original_description,
-            status: vs.status as "resolved" | "unresolved" | "partially_resolved",
+            status: vs.status as
+              | "resolved"
+              | "unresolved"
+              | "partially_resolved",
           })
         ),
         newViolationsFound: (result.new_violations_found || []).map(
@@ -270,6 +313,216 @@ export default function ResultsPage() {
     );
   }
 
+  const beforeScore = analysis.fixAnalysis?.before_score;
+  const afterScore =
+    analysis.fixAnalysis?.after_score || analysis.complianceScore;
+  const resolvedItems = analysis.fixAnalysis?.resolved_items || [];
+
+  // ── Before/After results view ──
+  if (isBeforeAfter) {
+    const scoreColor =
+      afterScore >= 80
+        ? "text-green-600"
+        : afterScore >= 60
+          ? "text-yellow-600"
+          : "text-red-600";
+
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-lg mx-auto px-4 pt-4 pb-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-1 text-slate-500 hover:text-slate-700 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">Dashboard</span>
+            </Link>
+            <div className="flex items-center gap-1.5">
+              <Shield className="w-5 h-5 text-blue-600" />
+              <span className="text-sm font-semibold text-slate-800">
+                Results
+              </span>
+            </div>
+            <Badge className="bg-slate-100 text-slate-500 text-xs gap-1">
+              <MapPin className="w-3 h-3" />
+              {analysis.jurisdiction === "California"
+                ? "CA"
+                : analysis.jurisdiction}
+            </Badge>
+          </div>
+
+          <p className="text-xs text-slate-400 mb-4 text-center">
+            {new Date(analysis.createdAt).toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+
+          {/* Score comparison */}
+          <Card className="p-5 mb-4">
+            <div className="flex items-center justify-center gap-4">
+              {beforeScore !== undefined && (
+                <>
+                  <div className="text-center">
+                    <p className="text-xs text-slate-500 mb-1">Before</p>
+                    <p
+                      className={cn(
+                        "text-3xl font-bold",
+                        beforeScore >= 80
+                          ? "text-green-600"
+                          : beforeScore >= 60
+                            ? "text-yellow-600"
+                            : "text-red-600"
+                      )}
+                    >
+                      {beforeScore}
+                    </p>
+                  </div>
+                  <ArrowRight className="w-6 h-6 text-slate-300" />
+                </>
+              )}
+              <div className="text-center">
+                <p className="text-xs text-slate-500 mb-1">After</p>
+                <p className={cn("text-3xl font-bold", scoreColor)}>
+                  {afterScore}
+                </p>
+              </div>
+              <span className="text-lg text-slate-300">/100</span>
+            </div>
+
+            {analysis.isCompliant ? (
+              <div className="flex justify-center mt-3">
+                <Badge className="bg-green-100 text-green-800 text-sm gap-1 px-3 py-1">
+                  <CheckCircle className="w-4 h-4" />
+                  Compliant
+                </Badge>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 text-center mt-3">
+                {violationMarkers.length} remaining issue
+                {violationMarkers.length !== 1 ? "s" : ""} to fix
+              </p>
+            )}
+          </Card>
+
+          {/* Before photo */}
+          <Card className="p-3 mb-3">
+            <div className="relative rounded-xl overflow-hidden border border-slate-200">
+              <img
+                src={analysis.photoUrl}
+                alt="Before - original work"
+                className="w-full h-auto max-h-56 object-contain bg-slate-50"
+              />
+              <div className="absolute top-2 left-2">
+                <Badge className="bg-slate-800/80 text-white text-xs">
+                  Before
+                </Badge>
+              </div>
+            </div>
+          </Card>
+
+          {/* After photo with violation overlay */}
+          <Card className="p-3 mb-4">
+            <ViolationOverlay
+              image={analysis.fixedPhotoUrl!}
+              violations={violationMarkers}
+              label="After"
+            />
+            {violationMarkers.length > 0 && (
+              <p className="text-xs text-slate-400 mt-2 text-center">
+                Tap markers to see violation details
+              </p>
+            )}
+          </Card>
+
+          {/* Resolved items */}
+          {resolvedItems.length > 0 && (
+            <Card className="p-4 mb-4 border-l-4 border-l-green-400">
+              <h3 className="text-sm font-semibold text-green-800 flex items-center gap-2 mb-2">
+                <CheckCircle className="w-4 h-4" />
+                Fixed ({resolvedItems.length})
+              </h3>
+              <ul className="space-y-1.5">
+                {(resolvedItems as string[]).map(
+                  (item: string, index: number) => (
+                    <li
+                      key={index}
+                      className="flex items-start gap-2 text-sm text-slate-700"
+                    >
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                      {item}
+                    </li>
+                  )
+                )}
+              </ul>
+            </Card>
+          )}
+
+          {/* Remaining violations detail cards */}
+          {analysis.violations.length > 0 && (
+            <div className="space-y-3 mb-4">
+              <h3 className="text-sm font-semibold text-slate-800 px-1">
+                Remaining Violations
+              </h3>
+              {analysis.violations.map((violation, index) => (
+                <AnalysisCard key={index} violation={violation} />
+              ))}
+            </div>
+          )}
+
+          {/* Overall assessment */}
+          <Card className="p-4 mb-4">
+            <h3 className="text-sm font-semibold text-slate-800 mb-2">
+              Assessment
+            </h3>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {analysis.overallAssessment}
+            </p>
+          </Card>
+
+          {/* Relevant Knowledge Clips */}
+          {relevantClips.length > 0 && (
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-blue-600" />
+                <h3 className="text-sm font-semibold text-slate-700">
+                  Expert Insights
+                </h3>
+              </div>
+              {relevantClips.map((clip) => (
+                <KnowledgeCard key={clip.id} clip={clip} />
+              ))}
+            </div>
+          )}
+
+          {/* Bottom actions */}
+          <div className="space-y-3">
+            <Link href="/analyze" className="block">
+              <Button className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                New Analysis
+              </Button>
+            </Link>
+            <Link href="/dashboard" className="block">
+              <Button
+                variant="outline"
+                className="w-full h-12 rounded-xl text-slate-600"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Legacy single-photo results view ──
   const analysisForComponent = {
     description: analysis.overallAssessment,
     isCompliant: analysis.isCompliant,
@@ -305,11 +558,12 @@ export default function ResultsPage() {
           </div>
           <Badge className="bg-slate-100 text-slate-500 text-xs gap-1">
             <MapPin className="w-3 h-3" />
-            {analysis.jurisdiction === "California" ? "CA" : analysis.jurisdiction}
+            {analysis.jurisdiction === "California"
+              ? "CA"
+              : analysis.jurisdiction}
           </Badge>
         </div>
 
-        {/* Date */}
         <p className="text-xs text-slate-400 mb-4 text-center">
           {new Date(analysis.createdAt).toLocaleDateString("en-US", {
             weekday: "long",
@@ -319,7 +573,7 @@ export default function ResultsPage() {
           })}
         </p>
 
-        {/* Work photo — always show when we have one */}
+        {/* Work photo */}
         {analysis.photoUrl && (
           <div className="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
             <img
@@ -414,7 +668,7 @@ export default function ResultsPage() {
           />
         )}
 
-        {/* Try again for a better grade — show when there's already a fix and we have a valid before image */}
+        {/* Try again for a better grade */}
         {!showRecheck && hasExistingFix && isImageUrlValid(getBeforeImageForRecheck(analysis)) && (
           <div className="mb-6">
             <Button

@@ -42,6 +42,30 @@ export interface AnalysisResult {
   work_type_detected: string;
 }
 
+export interface BeforeAfterResult {
+  description: string;
+  before_score: number;
+  after_score: number;
+  is_compliant: boolean;
+  violations_found: {
+    id: number;
+    description: string;
+    code_section: string;
+    severity: 'critical' | 'major' | 'minor';
+    status: 'unresolved' | 'new';
+    fix_instruction: string;
+    why_this_matters: string;
+    location_x: number;
+    location_y: number;
+  }[];
+  resolved_items: string[];
+  skills_demonstrated: {
+    skill: string;
+    quality: 'good' | 'acceptable' | 'needs_work';
+  }[];
+  overall_assessment: string;
+}
+
 export interface RecheckResult {
   description: string;
   is_compliant: boolean;
@@ -137,6 +161,79 @@ export async function analyzePhoto(
     const jsonString = jsonMatch ? jsonMatch[1].trim() : rawText.trim();
 
     const result: AnalysisResult = JSON.parse(jsonString);
+    return result;
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new Error('Failed to parse Claude response as JSON');
+    }
+    throw error;
+  }
+}
+
+export async function analyzeBeforeAfter(
+  beforeBase64: string,
+  afterBase64: string,
+  systemPrompt: string,
+  userDescription: string,
+  workType: string
+): Promise<BeforeAfterResult> {
+  try {
+    const cleanBefore = stripDataUrlPrefix(beforeBase64);
+    const cleanAfter = stripDataUrlPrefix(afterBase64);
+    const beforeMediaType = detectMediaType(cleanBefore);
+    const afterMediaType = detectMediaType(cleanAfter);
+
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: 'Here is the BEFORE photo (original work):',
+            },
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: beforeMediaType,
+                data: cleanBefore,
+              },
+            },
+            {
+              type: 'text',
+              text: 'Here is the AFTER photo (work after fixes):',
+            },
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: afterMediaType,
+                data: cleanAfter,
+              },
+            },
+            {
+              type: 'text',
+              text: `Work type: ${workType}\n\nDescription: ${userDescription}\n\nPlease compare both photos and respond with the JSON format specified in your instructions.`,
+            },
+          ],
+        },
+      ],
+    });
+
+    const textBlock = response.content.find((block) => block.type === 'text');
+    if (!textBlock || textBlock.type !== 'text') {
+      throw new Error('No text response received from Claude');
+    }
+
+    const rawText = textBlock.text;
+    const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
+    const jsonString = jsonMatch ? jsonMatch[1].trim() : rawText.trim();
+
+    const result: BeforeAfterResult = JSON.parse(jsonString);
     return result;
   } catch (error) {
     if (error instanceof SyntaxError) {
