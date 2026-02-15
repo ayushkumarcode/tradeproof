@@ -327,5 +327,134 @@ namespace TradeProof.Core
                 yield return new WaitForSeconds(0.15f);
             }
         }
+
+        // --- New Sound Effects for Expanded Tasks ---
+
+        public void PlayBendingSound()
+        {
+            // Metallic scraping/bending sound
+            PlayGeneratedTone(180f, 0.4f, sfxSource);
+        }
+
+        public void PlayMultimeterBeep()
+        {
+            PlayGeneratedTone(1500f, 0.08f, sfxSource);
+        }
+
+        public void PlayMultimeterContinuity()
+        {
+            // Continuous tone for continuity mode
+            PlayGeneratedTone(2000f, 0.3f, sfxSource);
+        }
+
+        public void PlayVoltageTesterBeep()
+        {
+            StartCoroutine(PlayRapidBeeps(1200f, 0.05f, 3));
+        }
+
+        public void PlaySwitchToggle()
+        {
+            PlayGeneratedTone(800f, 0.03f, sfxSource);
+        }
+
+        public void PlayWireNutTwist()
+        {
+            StartCoroutine(PlayRapidBeeps(600f, 0.04f, 4));
+        }
+
+        public void PlayGFCITrip()
+        {
+            PlayGeneratedTone(350f, 0.15f, sfxSource);
+        }
+
+        public void PlayGFCIReset()
+        {
+            PlayGeneratedTone(700f, 0.1f, sfxSource);
+        }
+
+        public void PlayCustomerGreeting()
+        {
+            // Two-tone doorbell-like sound
+            StartCoroutine(PlayDoorbell());
+        }
+
+        public void PlayDayComplete()
+        {
+            StartCoroutine(PlayDayCompleteJingle());
+        }
+
+        public void PlayLevelUp()
+        {
+            StartCoroutine(PlayLevelUpJingle());
+        }
+
+        public void PlayWireStrip()
+        {
+            PlayGeneratedTone(400f, 0.08f, sfxSource);
+        }
+
+        public void PlayScrewTighten()
+        {
+            PlayGeneratedTone(500f, 0.06f, sfxSource);
+        }
+
+        public void PlayConduitCut()
+        {
+            PlayGeneratedTone(250f, 0.2f, sfxSource);
+        }
+
+        public void PlayReaming()
+        {
+            StartCoroutine(PlayRapidBeeps(300f, 0.06f, 5));
+        }
+
+        public void PlayMentorSpeak()
+        {
+            PlayGeneratedTone(440f, 0.1f, uiSource);
+        }
+
+        public void PlayButtonClickSound()
+        {
+            PlayButtonClick();
+        }
+
+        // --- Procedural Jingle Coroutines ---
+
+        private System.Collections.IEnumerator PlayRapidBeeps(float freq, float duration, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                PlayGeneratedTone(freq, duration, sfxSource);
+                yield return new WaitForSeconds(duration + 0.02f);
+            }
+        }
+
+        private System.Collections.IEnumerator PlayDoorbell()
+        {
+            PlayGeneratedTone(523f, 0.3f, sfxSource); // C5
+            yield return new WaitForSeconds(0.25f);
+            PlayGeneratedTone(659f, 0.4f, sfxSource); // E5
+        }
+
+        private System.Collections.IEnumerator PlayDayCompleteJingle()
+        {
+            float[] notes = { 392f, 440f, 494f, 523f, 659f, 784f }; // G4, A4, B4, C5, E5, G5
+            foreach (float note in notes)
+            {
+                PlayGeneratedTone(note, 0.18f, sfxSource);
+                yield return new WaitForSeconds(0.12f);
+            }
+        }
+
+        private System.Collections.IEnumerator PlayLevelUpJingle()
+        {
+            float[] notes = { 523f, 659f, 784f, 1047f, 1319f }; // C5, E5, G5, C6, E6
+            float[] durations = { 0.12f, 0.12f, 0.12f, 0.12f, 0.3f };
+            for (int i = 0; i < notes.Length; i++)
+            {
+                PlayGeneratedTone(notes[i], durations[i], sfxSource);
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
     }
 }

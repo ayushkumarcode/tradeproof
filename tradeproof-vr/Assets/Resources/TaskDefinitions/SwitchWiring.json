@@ -1,0 +1,139 @@
+{
+  "taskId": "switch-wiring-3way",
+  "taskName": "3-Way Switch Wiring",
+  "description": "Wire two 3-way switches to control a single light fixture using proper traveler connections and NEC-compliant wiring methods.",
+  "difficulty": "intermediate",
+  "taskType": "wiring",
+  "badgeAwarded": "switch-wiring-level-1",
+  "timeLimit": 300,
+  "passingScore": 80,
+  "jobSiteType": "residential-hallway",
+  "requiredTools": ["wire-strippers", "voltage-tester", "wire-nut"],
+  "necCodes": ["404.2", "200.7", "250.50", "110.14"],
+  "prerequisites": ["outlet-installation-duplex"],
+  "violations": [],
+  "steps": [
+    {
+      "id": "identify-line-load",
+      "order": 1,
+      "description": "Identify the line (power source) and load (light fixture) wires",
+      "necCode": "404.2",
+      "action": "identify-line-load",
+      "targetComponent": "wires",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "identified",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Use the voltage tester to identify which cable is the line (hot from panel) and which is the load (going to the light fixture). The line cable will show 120V."
+    },
+    {
+      "id": "connect-switch1-common",
+      "order": 2,
+      "description": "Connect the line hot wire to Switch 1 common terminal (dark screw)",
+      "necCode": "404.2",
+      "action": "connect-switch1-common",
+      "targetComponent": "sw1-common-terminal",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "black",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "hot",
+        "snapPointId": "sw1_common",
+        "tolerance": 0.02
+      },
+      "hintText": "The common terminal is the darker-colored screw (usually black or dark brass). This is where the line hot connects on the first switch. NEC 404.2 requires switching only in the ungrounded conductor."
+    },
+    {
+      "id": "connect-travelers-1",
+      "order": 3,
+      "description": "Connect traveler wires from Switch 1 brass terminals",
+      "necCode": "404.2",
+      "action": "connect-travelers-1",
+      "targetComponent": "sw1-traveler-terminals",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "red",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "hot",
+        "snapPointId": "sw1_traveler1",
+        "tolerance": 0.02
+      },
+      "hintText": "Connect one traveler wire to each brass-colored screw on Switch 1. Travelers carry power between the two switches. The red and black wires in the 3-wire cable are typically used as travelers."
+    },
+    {
+      "id": "connect-travelers-2",
+      "order": 4,
+      "description": "Connect traveler wires to Switch 2 brass terminals (match positions)",
+      "necCode": "404.2",
+      "action": "connect-travelers-2",
+      "targetComponent": "sw2-traveler-terminals",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "red",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "hot",
+        "snapPointId": "sw2_traveler1",
+        "tolerance": 0.02
+      },
+      "hintText": "Connect the same traveler wires to the matching brass screws on Switch 2. Traveler 1 from Switch 1 goes to Traveler 1 on Switch 2, and likewise for Traveler 2."
+    },
+    {
+      "id": "connect-switch2-to-fixture",
+      "order": 5,
+      "description": "Connect Switch 2 common terminal to the light fixture (switch leg)",
+      "necCode": "404.2",
+      "action": "connect-switch2-to-fixture",
+      "targetComponent": "sw2-common-terminal",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "black",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "hot",
+        "snapPointId": "sw2_common",
+        "tolerance": 0.02
+      },
+      "hintText": "The common terminal on Switch 2 connects to the light fixture via the switch leg wire. This carries switched power to the light."
+    },
+    {
+      "id": "splice-neutrals",
+      "order": 6,
+      "description": "Splice all neutral (white) wires together with wire nut",
+      "necCode": "200.7",
+      "action": "splice-neutrals",
+      "targetComponent": "junction-box",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "white",
+      "validation": {
+        "type": "action",
+        "expectedValue": "spliced",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "In a 3-way switch circuit, neutrals pass straight through to the fixture. Splice all white wires together with a wire nut in each box. NEC 200.7 requires white wires to be used only as grounded conductors."
+    },
+    {
+      "id": "connect-grounds",
+      "order": 7,
+      "description": "Connect all ground wires and pigtail to switch ground screws",
+      "necCode": "250.50",
+      "action": "connect-grounds",
+      "targetComponent": "ground-wires",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "green",
+      "validation": {
+        "type": "action",
+        "expectedValue": "grounded",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Splice all ground wires together and add a pigtail to each switch's green ground screw. Every switch and box must be grounded."
+    }
+  ],
+  "measurements": [],
+  "dialogues": [],
+  "faults": []
+}

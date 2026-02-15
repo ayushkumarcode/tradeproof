@@ -1,0 +1,173 @@
+{
+  "taskId": "outlet-installation-duplex",
+  "taskName": "Outlet Installation",
+  "description": "Install a duplex outlet in a junction box, connecting hot, neutral, and ground wires with proper NEC-compliant terminations.",
+  "difficulty": "beginner",
+  "taskType": "wiring",
+  "badgeAwarded": "outlet-installation-level-1",
+  "timeLimit": 240,
+  "passingScore": 80,
+  "jobSiteType": "residential-kitchen",
+  "requiredTools": ["wire-strippers"],
+  "necCodes": ["300.14", "110.14", "210.21", "200.6", "250.50"],
+  "prerequisites": [],
+  "violations": [],
+  "steps": [
+    {
+      "id": "strip-romex",
+      "order": 1,
+      "description": "Strip the Romex sheath to expose individual conductors",
+      "necCode": "",
+      "action": "strip-romex",
+      "targetComponent": "romex-cable",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "stripped",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Use wire strippers to remove the outer sheath, exposing the black, white, and bare copper wires inside."
+    },
+    {
+      "id": "identify-wires",
+      "order": 2,
+      "description": "Identify hot (black), neutral (white), and ground (bare) wires",
+      "necCode": "200.6",
+      "action": "identify-wires",
+      "targetComponent": "wires",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "identified",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Black = Hot, White = Neutral, Bare copper = Ground. Color coding is critical for safety."
+    },
+    {
+      "id": "verify-wire-length",
+      "order": 3,
+      "description": "Verify at least 6 inches of free wire in the box (NEC 300.14)",
+      "necCode": "300.14",
+      "action": "measure-wire-length",
+      "targetComponent": "junction-box",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "measurement",
+        "expectedValue": "6",
+        "snapPointId": "",
+        "tolerance": 0.5
+      },
+      "hintText": "NEC 300.14 requires at least 6 inches of free conductor at each box. Measure from where the wire enters."
+    },
+    {
+      "id": "connect-hot",
+      "order": 4,
+      "description": "Connect hot (black) wire to brass terminal",
+      "necCode": "110.14",
+      "action": "connect-hot",
+      "targetComponent": "outlet-hot-terminal",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "black",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "hot",
+        "snapPointId": "outlet-hot",
+        "tolerance": 0.02
+      },
+      "hintText": "The brass-colored screw is for the hot (black) wire. Wrap wire clockwise around the screw."
+    },
+    {
+      "id": "connect-neutral",
+      "order": 5,
+      "description": "Connect neutral (white) wire to silver terminal",
+      "necCode": "200.6",
+      "action": "connect-neutral",
+      "targetComponent": "outlet-neutral-terminal",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "white",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "neutral",
+        "snapPointId": "outlet-neutral",
+        "tolerance": 0.02
+      },
+      "hintText": "The silver-colored screw is for the neutral (white) wire."
+    },
+    {
+      "id": "connect-ground",
+      "order": 6,
+      "description": "Connect ground (bare) wire to green screw",
+      "necCode": "250.50",
+      "action": "connect-ground",
+      "targetComponent": "outlet-ground-terminal",
+      "requiredWireGauge": "12",
+      "requiredWireColor": "green",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "ground",
+        "snapPointId": "outlet-ground",
+        "tolerance": 0.02
+      },
+      "hintText": "The green screw is for the ground (bare copper) wire."
+    },
+    {
+      "id": "tighten-terminations",
+      "order": 7,
+      "description": "Tighten all terminations to proper torque (NEC 110.14)",
+      "necCode": "110.14",
+      "action": "tighten-terminations",
+      "targetComponent": "outlet",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "tightened",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "All screw terminals must be properly tightened. Loose connections cause arcing and fire."
+    },
+    {
+      "id": "mount-outlet",
+      "order": 8,
+      "description": "Mount the outlet to the junction box",
+      "necCode": "",
+      "action": "mount-outlet",
+      "targetComponent": "junction-box",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "mounted",
+        "snapPointId": "junction-box-mount",
+        "tolerance": 0.02
+      },
+      "hintText": "Push the outlet into the box and secure with mounting screws."
+    },
+    {
+      "id": "install-coverplate",
+      "order": 9,
+      "description": "Install the cover plate",
+      "necCode": "",
+      "action": "install-coverplate",
+      "targetComponent": "coverplate-snap",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "snap",
+        "expectedValue": "installed",
+        "snapPointId": "coverplate-snap",
+        "tolerance": 0.02
+      },
+      "hintText": "Snap or screw the cover plate onto the outlet. This protects the wiring and gives a finished look."
+    }
+  ],
+  "measurements": [],
+  "dialogues": [],
+  "faults": []
+}

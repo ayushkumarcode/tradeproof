@@ -1,0 +1,217 @@
+{
+  "taskId": "conduit-bending-emt",
+  "taskName": "EMT Conduit Bending",
+  "description": "Measure, mark, and bend EMT conduit to create accurate 90-degree bends, offset bends, and saddle bends using a hand bender.",
+  "difficulty": "intermediate",
+  "taskType": "measurement",
+  "badgeAwarded": "conduit-bending-level-1",
+  "timeLimit": 360,
+  "passingScore": 80,
+  "jobSiteType": "commercial-office",
+  "requiredTools": ["conduit-bender", "tape-measure", "reaming-tool"],
+  "necCodes": ["358.24", "358.28", "300.14"],
+  "prerequisites": [],
+  "violations": [],
+  "steps": [
+    {
+      "id": "measure-stub-up",
+      "order": 1,
+      "description": "Measure and calculate the stub-up distance for a 90-degree bend (target: 10 inches)",
+      "necCode": "",
+      "action": "measure-stub-up",
+      "targetComponent": "conduit",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "measurement",
+        "expectedValue": "10",
+        "snapPointId": "",
+        "tolerance": 0.5
+      },
+      "hintText": "For a stub-up, subtract the take-up of your bender from the desired stub height. For 3/4\" EMT, the take-up is typically 6 inches. So for a 10-inch stub, mark at 10 inches minus the take-up."
+    },
+    {
+      "id": "mark-conduit",
+      "order": 2,
+      "description": "Mark the conduit at the correct measurement point",
+      "necCode": "",
+      "action": "mark-conduit",
+      "targetComponent": "conduit",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "marked",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Use a pencil or marker to make a clear mark on the conduit at the measured point. Align this mark with the arrow on the bender shoe. Double-check your measurement before bending."
+    },
+    {
+      "id": "bend-90-degrees",
+      "order": 3,
+      "description": "Make a 90-degree bend using the conduit bender",
+      "necCode": "358.24",
+      "action": "bend-90-degrees",
+      "targetComponent": "conduit-bender",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "measurement",
+        "expectedValue": "90",
+        "snapPointId": "",
+        "tolerance": 5
+      },
+      "hintText": "Place the conduit in the bender with the mark at the arrow. Apply steady foot pressure on the bender shoe while pulling the handle toward you. Bend in one smooth motion until the stub is vertical. NEC 358.24 limits total bends to 360 degrees between pull points."
+    },
+    {
+      "id": "check-90-angle",
+      "order": 4,
+      "description": "Check the 90-degree bend angle with a level or angle finder (tolerance: +/-5 degrees)",
+      "necCode": "358.24",
+      "action": "check-90-angle",
+      "targetComponent": "conduit",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "measurement",
+        "expectedValue": "90",
+        "snapPointId": "",
+        "tolerance": 5
+      },
+      "hintText": "Place a level against the stub-up to verify it's perpendicular to the floor. A 90-degree bend should read exactly 90 degrees on an angle finder. If it's under-bent (springback), apply slightly more pressure."
+    },
+    {
+      "id": "make-offset-bend",
+      "order": 5,
+      "description": "Make an offset bend (two matching bends at 30 degrees) to route around an obstacle",
+      "necCode": "358.24",
+      "action": "make-offset-bend",
+      "targetComponent": "conduit-bender",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "measurement",
+        "expectedValue": "30",
+        "snapPointId": "",
+        "tolerance": 5
+      },
+      "hintText": "An offset bend uses two equal bends in opposite directions. For a 30-degree offset, calculate the distance between bends using the multiplier (2.0x the offset depth). Make the first 30-degree bend, then flip the conduit and make the second 30-degree bend."
+    },
+    {
+      "id": "check-offset-angle",
+      "order": 6,
+      "description": "Verify offset bend angles are matched (both 30 degrees, tolerance: +/-5 degrees)",
+      "necCode": "358.24",
+      "action": "check-offset-angle",
+      "targetComponent": "conduit",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "measurement",
+        "expectedValue": "30",
+        "snapPointId": "",
+        "tolerance": 5
+      },
+      "hintText": "Both bends in an offset must be the same angle. If they don't match, the conduit will twist and not lay flat. Check each bend with the angle finder — both should read 30 degrees."
+    },
+    {
+      "id": "make-saddle-bend",
+      "order": 7,
+      "description": "Make a 3-point saddle bend (45-degree center bend with two 22.5-degree return bends)",
+      "necCode": "358.24",
+      "action": "make-saddle-bend",
+      "targetComponent": "conduit-bender",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "measurement",
+        "expectedValue": "45",
+        "snapPointId": "",
+        "tolerance": 5
+      },
+      "hintText": "A saddle bend routes conduit over an obstacle and back. Make the center 45-degree bend first at the obstacle center. Then make two 22.5-degree bends equidistant from the center, in the opposite direction. The conduit should return to the same plane."
+    },
+    {
+      "id": "ream-cut-end",
+      "order": 8,
+      "description": "Ream the cut end of the conduit to remove burrs (NEC 358.28)",
+      "necCode": "358.28",
+      "action": "ream-cut-end",
+      "targetComponent": "conduit-end",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "reamed",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "NEC 358.28 requires all cut ends to be reamed. Use the reaming tool to remove sharp burrs from inside the conduit end. Un-reamed conduit damages wire insulation during pulling, causing shorts and ground faults."
+    }
+  ],
+  "measurements": [
+    {
+      "id": "measure-stub-up",
+      "description": "Stub-up height measurement",
+      "measurementType": "distance",
+      "targetValue": 10,
+      "tolerance": 0.5,
+      "unit": "inches",
+      "necCode": "",
+      "hintText": "Measure from the back of the 90 to the end of the stub. Target is 10 inches."
+    },
+    {
+      "id": "bend-90-degrees",
+      "description": "90-degree bend angle accuracy",
+      "measurementType": "angle",
+      "targetValue": 90,
+      "tolerance": 5,
+      "unit": "degrees",
+      "necCode": "358.24",
+      "hintText": "Use a level to verify the bend is exactly 90 degrees."
+    },
+    {
+      "id": "check-90-angle",
+      "description": "90-degree bend verification",
+      "measurementType": "angle",
+      "targetValue": 90,
+      "tolerance": 5,
+      "unit": "degrees",
+      "necCode": "358.24",
+      "hintText": "Check with an angle finder — must be within +/-5 degrees of 90."
+    },
+    {
+      "id": "make-offset-bend",
+      "description": "Offset bend angle (first bend)",
+      "measurementType": "angle",
+      "targetValue": 30,
+      "tolerance": 5,
+      "unit": "degrees",
+      "necCode": "358.24",
+      "hintText": "First offset bend should be 30 degrees."
+    },
+    {
+      "id": "check-offset-angle",
+      "description": "Offset bend angle (second bend match)",
+      "measurementType": "angle",
+      "targetValue": 30,
+      "tolerance": 5,
+      "unit": "degrees",
+      "necCode": "358.24",
+      "hintText": "Second offset bend must match the first at 30 degrees."
+    },
+    {
+      "id": "make-saddle-bend",
+      "description": "Saddle center bend angle",
+      "measurementType": "angle",
+      "targetValue": 45,
+      "tolerance": 5,
+      "unit": "degrees",
+      "necCode": "358.24",
+      "hintText": "Center bend of the saddle should be 45 degrees."
+    }
+  ],
+  "dialogues": [],
+  "faults": []
+}

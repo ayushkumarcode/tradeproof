@@ -1,0 +1,278 @@
+{
+  "taskId": "troubleshooting-residential",
+  "taskName": "Circuit Troubleshooting",
+  "description": "Respond to a customer complaint about a dead outlet, systematically diagnose the circuit fault using testing tools, repair the issue, and verify the fix.",
+  "difficulty": "advanced",
+  "taskType": "troubleshooting",
+  "badgeAwarded": "troubleshooting-level-1",
+  "timeLimit": 420,
+  "passingScore": 80,
+  "jobSiteType": "residential-living-room",
+  "requiredTools": ["multimeter", "voltage-tester"],
+  "necCodes": ["110.14", "300.14", "314.16"],
+  "prerequisites": ["outlet-installation-duplex", "gfci-testing-residential"],
+  "violations": [],
+  "steps": [
+    {
+      "id": "read-complaint",
+      "order": 1,
+      "description": "Read the customer complaint and understand the reported issue",
+      "necCode": "",
+      "action": "read-complaint",
+      "targetComponent": "customer-npc",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "dialogue",
+        "expectedValue": "complaint-read",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Approach the customer and listen to their complaint. Note key details: which outlet is dead, when it happened, what they were doing, and whether other outlets are affected."
+    },
+    {
+      "id": "ask-diagnostics",
+      "order": 2,
+      "description": "Ask the customer diagnostic questions to narrow down the problem",
+      "necCode": "",
+      "action": "ask-diagnostics",
+      "targetComponent": "customer-npc",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "dialogue",
+        "expectedValue": "diagnostics-asked",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Ask good diagnostic questions: When did it stop? Was there a pop or spark? Were multiple outlets affected? Did a breaker trip? Did anything change recently? Good questions earn diagnostic points."
+    },
+    {
+      "id": "check-panel",
+      "order": 3,
+      "description": "Visually inspect the electrical panel for tripped breakers",
+      "necCode": "",
+      "action": "check-panel",
+      "targetComponent": "electrical-panel",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "panel-inspected",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Go to the electrical panel and look for any tripped breakers. A tripped breaker will be in the center position (not fully ON or OFF). Also check for any signs of overheating, scorch marks, or unusual odors."
+    },
+    {
+      "id": "test-panel-voltage",
+      "order": 4,
+      "description": "Test voltage at the panel breaker feeding the affected circuit",
+      "necCode": "",
+      "action": "test-panel-voltage",
+      "targetComponent": "panel-breaker",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "measurement",
+        "expectedValue": "120",
+        "snapPointId": "",
+        "tolerance": 10
+      },
+      "hintText": "Use the voltage tester to check for voltage at the breaker. You should read approximately 120V if the breaker is on and functioning. If you read 0V at the breaker, the issue is at the panel level."
+    },
+    {
+      "id": "test-outlet-voltage",
+      "order": 5,
+      "description": "Test voltage at each outlet on the circuit",
+      "necCode": "",
+      "action": "test-outlet-voltage",
+      "targetComponent": "outlets",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "measurement",
+        "expectedValue": "varies",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Test voltage at each outlet on the circuit, starting from the panel and moving outward. Note where you first lose voltage — the fault is between the last good outlet and the first dead one."
+    },
+    {
+      "id": "trace-circuit",
+      "order": 6,
+      "description": "Trace the circuit path through junction boxes to isolate the fault location",
+      "necCode": "",
+      "action": "trace-circuit",
+      "targetComponent": "junction-boxes",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "circuit-traced",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Follow the wire path from the panel through each junction box to the outlets. Check continuity at each junction point using the multimeter. The fault is at the point where continuity is lost."
+    },
+    {
+      "id": "identify-fault",
+      "order": 7,
+      "description": "Identify the specific fault type and location",
+      "necCode": "110.14",
+      "action": "identify-fault",
+      "targetComponent": "fault-location",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "fault-identified",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Based on your voltage and continuity readings, identify the fault. Common faults: loose connection (intermittent voltage), bad splice (high resistance reading), broken wire (open circuit, no continuity), tripped GFCI, or overloaded circuit."
+    },
+    {
+      "id": "repair-fault",
+      "order": 8,
+      "description": "Repair the identified fault using proper methods",
+      "necCode": "110.14",
+      "action": "repair-fault",
+      "targetComponent": "fault-location",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "fault-repaired",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Turn off the breaker before making repairs. Fix the fault: tighten loose connections (NEC 110.14 requires proper torque), replace bad wire nuts, reconnect broken wires, or replace damaged components. Ensure all connections are secure."
+    },
+    {
+      "id": "verify-repair",
+      "order": 9,
+      "description": "Verify the repair by testing voltage at all previously dead outlets",
+      "necCode": "",
+      "action": "verify-repair",
+      "targetComponent": "outlets",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "measurement",
+        "expectedValue": "120",
+        "snapPointId": "",
+        "tolerance": 10
+      },
+      "hintText": "Turn the breaker back on and test voltage at every outlet that was previously dead. All should now read approximately 120V. Also test outlets that were working before to ensure you didn't create new problems."
+    },
+    {
+      "id": "report-to-customer",
+      "order": 10,
+      "description": "Report findings and repair to the customer",
+      "necCode": "",
+      "action": "report-to-customer",
+      "targetComponent": "customer-npc",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "dialogue",
+        "expectedValue": "reported",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Return to the customer and explain what you found, what caused the problem, and what you did to fix it. Clear communication builds trust and helps the customer understand their electrical system."
+    }
+  ],
+  "measurements": [],
+  "dialogues": [
+    {
+      "id": "greeting",
+      "speakerName": "Mrs. Johnson",
+      "text": "Hi, thanks for coming! The outlet in the living room suddenly stopped working. I was using my vacuum when it just went dead.",
+      "choices": [
+        {
+          "choiceText": "When exactly did this happen?",
+          "nextDialogueId": "timeline",
+          "diagnosticPoints": 2,
+          "responseText": "It happened about an hour ago. I heard a little pop sound and then the vacuum just died."
+        },
+        {
+          "choiceText": "Did any other outlets or lights stop working at the same time?",
+          "nextDialogueId": "affected-areas",
+          "diagnosticPoints": 3,
+          "responseText": "Actually, now that you mention it, the outlet in the hallway seems dead too. But the kitchen outlets are working fine."
+        },
+        {
+          "choiceText": "I'll take a look at it right away.",
+          "nextDialogueId": "affected-areas",
+          "diagnosticPoints": 0,
+          "responseText": "Thank you! It's the outlet behind the couch in the living room."
+        }
+      ],
+      "nextDialogueId": "timeline",
+      "condition": ""
+    },
+    {
+      "id": "timeline",
+      "speakerName": "Mrs. Johnson",
+      "text": "Like I said, about an hour ago. I was vacuuming and heard a pop. Do you think it's dangerous?",
+      "choices": [
+        {
+          "choiceText": "Have you checked if a breaker tripped in your electrical panel?",
+          "nextDialogueId": "breaker-check",
+          "diagnosticPoints": 3,
+          "responseText": "I looked at the panel in the garage, but I honestly don't know what a tripped breaker looks like. Everything seemed... normal?"
+        },
+        {
+          "choiceText": "Were you running any other high-power appliances at the time?",
+          "nextDialogueId": "breaker-check",
+          "diagnosticPoints": 2,
+          "responseText": "Hmm, the space heater in the hallway was on too. Could that have caused it?"
+        }
+      ],
+      "nextDialogueId": "breaker-check",
+      "condition": ""
+    },
+    {
+      "id": "affected-areas",
+      "speakerName": "Mrs. Johnson",
+      "text": "Is it something with the wiring? This is an older house — built in the 1980s I think.",
+      "choices": [
+        {
+          "choiceText": "Has this happened before with any outlets?",
+          "nextDialogueId": "breaker-check",
+          "diagnosticPoints": 2,
+          "responseText": "Actually, a few months ago the same outlet flickered a couple times. I didn't think much of it."
+        },
+        {
+          "choiceText": "Have any recent renovations or work been done on the house?",
+          "nextDialogueId": "breaker-check",
+          "diagnosticPoints": 1,
+          "responseText": "No, nothing recent. We've been here about five years and haven't changed anything electrical."
+        }
+      ],
+      "nextDialogueId": "breaker-check",
+      "condition": ""
+    },
+    {
+      "id": "breaker-check",
+      "speakerName": "Mrs. Johnson",
+      "text": "I'll let you do your thing. Let me know when you figure out what's wrong. I'll be in the kitchen.",
+      "choices": [],
+      "nextDialogueId": "",
+      "condition": ""
+    }
+  ],
+  "faults": [
+    {
+      "id": "loose-connection-jb1",
+      "faultType": "loose-connection",
+      "description": "Loose wire nut connection in junction box 1 causing intermittent/lost contact on the hot conductor",
+      "affectedComponent": "junction-box-1",
+      "repairAction": "reconnect-wire",
+      "hintText": "Check wire connections in junction box 1 — a loose wire nut can cause intermittent power loss. The connection may have been vibrated loose over time.",
+      "necCode": "110.14"
+    }
+  ]
+}

@@ -5,11 +5,6 @@ using TradeProof.Training;
 
 namespace TradeProof.UI
 {
-    /// <summary>
-    /// Heads-up display that follows user gaze slightly.
-    /// Shows timer (test mode), violations found count, current mode, hint button (practice mode).
-    /// Maintains readable distance from user (0.5-1.5m).
-    /// </summary>
     public class HUDController : MonoBehaviour
     {
         [Header("Canvas")]
@@ -20,6 +15,8 @@ namespace TradeProof.UI
         [SerializeField] private TextMeshProUGUI modeText;
         [SerializeField] private TextMeshProUGUI progressText;
         [SerializeField] private TextMeshProUGUI taskNameText;
+        [SerializeField] private TextMeshProUGUI workOrderInfoText;
+        [SerializeField] private TextMeshProUGUI toolReadoutText;
         [SerializeField] private UnityEngine.UI.Button hintButton;
         [SerializeField] private UnityEngine.UI.Button finishButton;
         [SerializeField] private UnityEngine.UI.Image progressBar;
@@ -29,7 +26,7 @@ namespace TradeProof.UI
         [SerializeField] private float followDistance = 0.8f;
         [SerializeField] private float followHeightOffset = 0.25f;
         [SerializeField] private float followSpeed = 3f;
-        [SerializeField] private float gazeFollowStrength = 0.3f; // How much it follows gaze vs staying centered
+        [SerializeField] private float gazeFollowStrength = 0.3f;
 
         [Header("Visual")]
         [SerializeField] private Color hudBackground = new Color(0.02f, 0.04f, 0.08f, 0.7f);
@@ -59,22 +56,18 @@ namespace TradeProof.UI
             {
                 canvas = gameObject.GetComponent<Canvas>();
                 if (canvas == null)
-                {
                     canvas = gameObject.AddComponent<Canvas>();
-                }
             }
 
             canvas.renderMode = RenderMode.WorldSpace;
 
             RectTransform rt = canvas.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(600f, 200f);
+            rt.sizeDelta = new Vector2(700f, 250f);
             rt.localScale = Vector3.one * 0.0008f;
 
             UnityEngine.UI.Image bg = canvas.gameObject.GetComponent<UnityEngine.UI.Image>();
             if (bg == null)
-            {
                 bg = canvas.gameObject.AddComponent<UnityEngine.UI.Image>();
-            }
             bg.color = hudBackground;
         }
 
@@ -82,22 +75,33 @@ namespace TradeProof.UI
         {
             // Task name
             taskNameText = CreateText("TaskName", "Training Task", 22, FontStyles.Bold,
-                new Vector2(0.02f, 0.72f), new Vector2(0.7f, 0.98f));
+                new Vector2(0.02f, 0.8f), new Vector2(0.6f, 0.98f));
 
             // Mode indicator
             modeText = CreateText("Mode", "LEARN", 18, FontStyles.Bold,
-                new Vector2(0.72f, 0.72f), new Vector2(0.98f, 0.98f));
+                new Vector2(0.62f, 0.8f), new Vector2(0.98f, 0.98f));
             modeText.alignment = TextAlignmentOptions.Right;
+
+            // Work order info (shown during day mode)
+            workOrderInfoText = CreateText("WorkOrderInfo", "", 14, FontStyles.Normal,
+                new Vector2(0.02f, 0.68f), new Vector2(0.98f, 0.8f));
+            workOrderInfoText.color = new Color(0.9f, 0.7f, 0.1f);
 
             // Timer
             timerText = CreateText("Timer", "", 28, FontStyles.Bold,
-                new Vector2(0.72f, 0.4f), new Vector2(0.98f, 0.7f));
+                new Vector2(0.72f, 0.42f), new Vector2(0.98f, 0.68f));
             timerText.alignment = TextAlignmentOptions.Right;
             timerText.color = timerNormalColor;
 
             // Progress text
-            progressText = CreateText("Progress", "0/0 Found", 20, FontStyles.Normal,
-                new Vector2(0.02f, 0.4f), new Vector2(0.5f, 0.65f));
+            progressText = CreateText("Progress", "0/0 Found", 18, FontStyles.Normal,
+                new Vector2(0.02f, 0.42f), new Vector2(0.5f, 0.6f));
+
+            // Tool readout (multimeter, tester readings)
+            toolReadoutText = CreateText("ToolReadout", "", 16, FontStyles.Bold,
+                new Vector2(0.5f, 0.42f), new Vector2(0.7f, 0.6f));
+            toolReadoutText.color = new Color(0.3f, 1f, 0.3f);
+            toolReadoutText.alignment = TextAlignmentOptions.Center;
 
             // Progress bar background
             GameObject pbBgObj = new GameObject("ProgressBarBG");
@@ -105,7 +109,7 @@ namespace TradeProof.UI
             progressBarBackground = pbBgObj.AddComponent<UnityEngine.UI.Image>();
             progressBarBackground.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
             RectTransform pbBgRT = pbBgObj.GetComponent<RectTransform>();
-            pbBgRT.anchorMin = new Vector2(0.02f, 0.28f);
+            pbBgRT.anchorMin = new Vector2(0.02f, 0.3f);
             pbBgRT.anchorMax = new Vector2(0.68f, 0.38f);
             pbBgRT.offsetMin = Vector2.zero;
             pbBgRT.offsetMax = Vector2.zero;
@@ -117,18 +121,18 @@ namespace TradeProof.UI
             progressBar.color = new Color(0.2f, 0.8f, 0.4f, 1f);
             RectTransform pbRT = pbObj.GetComponent<RectTransform>();
             pbRT.anchorMin = Vector2.zero;
-            pbRT.anchorMax = new Vector2(0f, 1f); // Width updated dynamically
+            pbRT.anchorMax = new Vector2(0f, 1f);
             pbRT.offsetMin = Vector2.zero;
             pbRT.offsetMax = Vector2.zero;
 
             // Hint button
             CreateButton("HintButton", "HINT", new Color(0.9f, 0.7f, 0.1f),
-                new Vector2(0.02f, 0.02f), new Vector2(0.32f, 0.24f),
+                new Vector2(0.02f, 0.02f), new Vector2(0.24f, 0.24f),
                 OnHintClicked, out hintButton);
 
             // Finish button
             CreateButton("FinishButton", "FINISH", new Color(0.3f, 0.6f, 0.9f),
-                new Vector2(0.36f, 0.02f), new Vector2(0.68f, 0.24f),
+                new Vector2(0.26f, 0.02f), new Vector2(0.5f, 0.24f),
                 OnFinishClicked, out finishButton);
         }
 
@@ -178,7 +182,7 @@ namespace TradeProof.UI
 
             TextMeshProUGUI btnText = textObj.AddComponent<TextMeshProUGUI>();
             btnText.text = text;
-            btnText.fontSize = 18;
+            btnText.fontSize = 16;
             btnText.alignment = TextAlignmentOptions.Center;
             btnText.color = Color.white;
             btnText.fontStyle = FontStyles.Bold;
@@ -206,13 +210,11 @@ namespace TradeProof.UI
                 if (playerCamera == null) return;
             }
 
-            // Calculate target position: slightly below and in front of gaze
             Vector3 gazeForward = playerCamera.transform.forward;
             Vector3 levelForward = gazeForward;
             levelForward.y = 0f;
             levelForward.Normalize();
 
-            // Blend between level forward and gaze forward for subtle follow
             Vector3 blendedForward = Vector3.Lerp(levelForward, gazeForward, gazeFollowStrength);
             blendedForward.Normalize();
 
@@ -224,7 +226,6 @@ namespace TradeProof.UI
                 (targetPosition - playerCamera.transform.position).normalized,
                 Vector3.up);
 
-            // Smoothly follow
             transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * followSpeed);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * followSpeed);
         }
@@ -236,10 +237,26 @@ namespace TradeProof.UI
 
             if (gm.CurrentState != GameState.Training) return;
 
-            // Task name
+            // Task name - use definition name if available
             if (taskNameText != null)
             {
-                taskNameText.text = gm.CurrentTaskId;
+                string taskName = tm.ActiveDefinition != null ? tm.ActiveDefinition.taskName : gm.CurrentTaskId;
+                taskNameText.text = taskName;
+            }
+
+            // Work order info
+            if (workOrderInfoText != null)
+            {
+                if (gm.IsDayMode && gm.CurrentWorkOrder != null)
+                {
+                    var order = gm.CurrentWorkOrder;
+                    workOrderInfoText.text = $"Job: {order.customerName} | {order.address} | +{order.xpReward} XP";
+                    workOrderInfoText.gameObject.SetActive(true);
+                }
+                else
+                {
+                    workOrderInfoText.gameObject.SetActive(false);
+                }
             }
 
             // Mode
@@ -270,11 +287,10 @@ namespace TradeProof.UI
                     int seconds = Mathf.FloorToInt(timeLeft % 60f);
                     timerText.text = $"{minutes}:{seconds:D2}";
 
-                    // Color changes at thresholds
                     if (timeLeft <= 30f)
                     {
                         timerText.color = timerCriticalColor;
-                        if (!timerWarningTriggered && timeLeft <= 30f)
+                        if (!timerWarningTriggered)
                         {
                             timerWarningTriggered = true;
                             AudioManager.Instance.PlayTimerTickSound();
@@ -297,9 +313,13 @@ namespace TradeProof.UI
                 }
             }
 
-            // Progress
-            if (progressText != null)
+            // Generalized progress using ITaskTracker
+            if (progressText != null && tm.ActiveTracker != null)
             {
+                float completion = tm.ActiveTracker.GetCompletionPercentage();
+                progressText.text = $"Progress: {completion:F0}%";
+
+                // Also update legacy displays for backward compat
                 if (tm.TotalViolations > 0)
                 {
                     progressText.text = $"{tm.ViolationsFound}/{tm.TotalViolations} Violations Found";
@@ -314,10 +334,18 @@ namespace TradeProof.UI
             if (progressBar != null)
             {
                 float progress = 0f;
-                if (tm.TotalViolations > 0)
+                if (tm.ActiveTracker != null)
+                {
+                    progress = tm.ActiveTracker.GetCompletionPercentage() / 100f;
+                }
+                else if (tm.TotalViolations > 0)
+                {
                     progress = (float)tm.ViolationsFound / tm.TotalViolations;
+                }
                 else if (tm.TotalSteps > 0)
+                {
                     progress = (float)tm.StepsCompleted / tm.TotalSteps;
+                }
 
                 RectTransform fillRT = progressBar.rectTransform;
                 fillRT.anchorMax = new Vector2(Mathf.Clamp01(progress), 1f);
@@ -327,6 +355,26 @@ namespace TradeProof.UI
             if (hintButton != null)
             {
                 hintButton.gameObject.SetActive(gm.CurrentTaskMode == TaskMode.Practice);
+            }
+        }
+
+        // --- Public API for tool readouts ---
+
+        public void SetToolReadout(string readout)
+        {
+            if (toolReadoutText != null)
+            {
+                toolReadoutText.text = readout;
+                toolReadoutText.gameObject.SetActive(!string.IsNullOrEmpty(readout));
+            }
+        }
+
+        public void ClearToolReadout()
+        {
+            if (toolReadoutText != null)
+            {
+                toolReadoutText.text = "";
+                toolReadoutText.gameObject.SetActive(false);
             }
         }
 
@@ -354,6 +402,7 @@ namespace TradeProof.UI
         {
             gameObject.SetActive(true);
             timerWarningTriggered = false;
+            ClearToolReadout();
         }
 
         public void Hide()

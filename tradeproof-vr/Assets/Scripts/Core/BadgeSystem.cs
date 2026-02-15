@@ -52,7 +52,26 @@ namespace TradeProof.Core
             { "circuit-wiring-level-2", "Circuit Wiring - Level 2" },
             { "speed-demon", "Speed Demon" },
             { "perfectionist", "Perfectionist" },
-            { "nec-scholar", "NEC Scholar" }
+            { "nec-scholar", "NEC Scholar" },
+            // New task badges
+            { "outlet-installation-level-1", "Outlet Installation - Level 1" },
+            { "outlet-installation-level-2", "Outlet Installation - Level 2" },
+            { "switch-wiring-level-1", "Switch Wiring - Level 1" },
+            { "switch-wiring-level-2", "Switch Wiring - Level 2" },
+            { "gfci-testing-level-1", "GFCI Testing - Level 1" },
+            { "gfci-testing-level-2", "GFCI Testing - Level 2" },
+            { "conduit-bending-level-1", "Conduit Bending - Level 1" },
+            { "conduit-bending-level-2", "Conduit Bending - Level 2" },
+            { "troubleshooting-level-1", "Troubleshooting - Level 1" },
+            { "troubleshooting-level-2", "Troubleshooting - Level 2" },
+            // Special badges
+            { "first-day", "First Day on the Job" },
+            { "five-day-streak", "5-Day Streak" },
+            { "all-tasks-passed", "All Tasks Passed" },
+            { "master-electrician", "Master Electrician" },
+            { "zero-hints", "No Help Needed" },
+            { "daily-challenge-1", "Daily Challenge Champion" },
+            { "weekly-warrior", "Weekly Warrior" }
         };
 
         private static readonly Dictionary<string, string> BadgeDifficulty = new Dictionary<string, string>
@@ -63,7 +82,24 @@ namespace TradeProof.Core
             { "circuit-wiring-level-2", "advanced" },
             { "speed-demon", "special" },
             { "perfectionist", "special" },
-            { "nec-scholar", "special" }
+            { "nec-scholar", "special" },
+            { "outlet-installation-level-1", "beginner" },
+            { "outlet-installation-level-2", "intermediate" },
+            { "switch-wiring-level-1", "intermediate" },
+            { "switch-wiring-level-2", "advanced" },
+            { "gfci-testing-level-1", "intermediate" },
+            { "gfci-testing-level-2", "advanced" },
+            { "conduit-bending-level-1", "intermediate" },
+            { "conduit-bending-level-2", "advanced" },
+            { "troubleshooting-level-1", "advanced" },
+            { "troubleshooting-level-2", "expert" },
+            { "first-day", "special" },
+            { "five-day-streak", "special" },
+            { "all-tasks-passed", "special" },
+            { "master-electrician", "special" },
+            { "zero-hints", "special" },
+            { "daily-challenge-1", "special" },
+            { "weekly-warrior", "special" }
         };
 
         private void Awake()
@@ -189,18 +225,91 @@ namespace TradeProof.Core
             // NEC Scholar: earned badges for both panel inspection and circuit wiring
             if (HasBadge("panel-inspection-level-1") && HasBadge("circuit-wiring-level-1") && !HasBadge("nec-scholar"))
             {
-                Badge scholarBadge = new Badge();
-                scholarBadge.badgeId = "nec-scholar";
-                scholarBadge.badgeName = BadgeNames["nec-scholar"];
-                scholarBadge.taskId = "multiple";
-                scholarBadge.score = 100f;
-                scholarBadge.dateEarned = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                scholarBadge.difficulty = "special";
-
-                badgeCollection.badges.Add(scholarBadge);
-                SaveBadges();
-                OnBadgeEarned?.Invoke(scholarBadge);
+                AwardSpecialBadge("nec-scholar", "multiple");
             }
+
+            // All Tasks Passed: have level-1 badge for all 7 tasks
+            string[] allTaskBadges = {
+                "panel-inspection-level-1", "circuit-wiring-level-1",
+                "outlet-installation-level-1", "switch-wiring-level-1",
+                "gfci-testing-level-1", "conduit-bending-level-1",
+                "troubleshooting-level-1"
+            };
+            bool allPassed = true;
+            foreach (string b in allTaskBadges)
+            {
+                if (!HasBadge(b)) { allPassed = false; break; }
+            }
+            if (allPassed && !HasBadge("all-tasks-passed"))
+            {
+                AwardSpecialBadge("all-tasks-passed", "all");
+            }
+
+            // Master Electrician: have level-2 badge for all 7 tasks
+            string[] masterBadges = {
+                "panel-inspection-level-2", "circuit-wiring-level-2",
+                "outlet-installation-level-2", "switch-wiring-level-2",
+                "gfci-testing-level-2", "conduit-bending-level-2",
+                "troubleshooting-level-2"
+            };
+            bool allMaster = true;
+            foreach (string b in masterBadges)
+            {
+                if (!HasBadge(b)) { allMaster = false; break; }
+            }
+            if (allMaster && !HasBadge("master-electrician"))
+            {
+                AwardSpecialBadge("master-electrician", "all");
+            }
+        }
+
+        public void CheckDayBadges(int daysCompleted, int dayStreak)
+        {
+            if (daysCompleted >= 1 && !HasBadge("first-day"))
+            {
+                AwardSpecialBadge("first-day", "career");
+            }
+
+            if (dayStreak >= 5 && !HasBadge("five-day-streak"))
+            {
+                AwardSpecialBadge("five-day-streak", "career");
+            }
+
+            if (dayStreak >= 7 && !HasBadge("weekly-warrior"))
+            {
+                AwardSpecialBadge("weekly-warrior", "career");
+            }
+        }
+
+        public void CheckZeroHintsBadge(string taskId, bool usedHints)
+        {
+            if (!usedHints && !HasBadge("zero-hints"))
+            {
+                AwardSpecialBadge("zero-hints", taskId);
+            }
+        }
+
+        public void CheckDailyChallengeBadge(int challengesCompleted)
+        {
+            if (challengesCompleted >= 1 && !HasBadge("daily-challenge-1"))
+            {
+                AwardSpecialBadge("daily-challenge-1", "challenge");
+            }
+        }
+
+        private void AwardSpecialBadge(string badgeId, string taskId)
+        {
+            Badge badge = new Badge();
+            badge.badgeId = badgeId;
+            badge.badgeName = BadgeNames.ContainsKey(badgeId) ? BadgeNames[badgeId] : badgeId;
+            badge.taskId = taskId;
+            badge.score = 100f;
+            badge.dateEarned = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            badge.difficulty = BadgeDifficulty.ContainsKey(badgeId) ? BadgeDifficulty[badgeId] : "special";
+
+            badgeCollection.badges.Add(badge);
+            SaveBadges();
+            OnBadgeEarned?.Invoke(badge);
         }
 
         public string ExportBadgesAsJson()

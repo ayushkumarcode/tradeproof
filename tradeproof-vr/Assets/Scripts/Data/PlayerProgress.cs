@@ -15,6 +15,18 @@ namespace TradeProof.Data
         public int totalTasksPassed;
         public string lastPlayDate;
 
+        // Career progression
+        public int totalXP;
+        public int currentCareerLevel; // 0=Apprentice, 1=Journeyman, 2=Master
+        public int daysCompleted;
+        public List<string> unlockedTaskIds = new List<string>();
+        public List<string> completedChallenges = new List<string>();
+        public int currentDayStreak;
+        public string lastDayPlayedDate;
+
+        // XP thresholds
+        public static readonly int[] CareerXPThresholds = { 0, 500, 2000 };
+
         public void RecordTaskCompletion(TaskResult result)
         {
             totalTasksAttempted++;
@@ -24,7 +36,6 @@ namespace TradeProof.Data
                 totalTasksPassed++;
             }
 
-            // Record completion
             TaskCompletionRecord record = new TaskCompletionRecord();
             record.taskId = result.taskId;
             record.mode = result.mode.ToString();
@@ -33,7 +44,6 @@ namespace TradeProof.Data
             record.completedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             completedTasks.Add(record);
 
-            // Update or add score record
             TaskScoreRecord existingScore = null;
             foreach (var s in scores)
             {
@@ -68,7 +78,6 @@ namespace TradeProof.Data
                 scores.Add(newScore);
             }
 
-            // Track badge
             if (result.passed && !string.IsNullOrEmpty(result.badgeId))
             {
                 if (!earnedBadgeIds.Contains(result.badgeId))
@@ -77,12 +86,95 @@ namespace TradeProof.Data
                 }
             }
 
+            // Track day streak
+            string today = DateTime.Now.ToString("yyyy-MM-dd");
+            if (lastDayPlayedDate != today)
+            {
+                string yesterday = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+                if (lastDayPlayedDate == yesterday)
+                    currentDayStreak++;
+                else
+                    currentDayStreak = 1;
+                lastDayPlayedDate = today;
+            }
+
             lastPlayDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         }
 
         public void AddPracticeTime(float seconds)
         {
             totalPracticeTimeSeconds += seconds;
+        }
+
+        public void AddXP(int amount)
+        {
+            totalXP += amount;
+
+            // Check for career level up
+            int newLevel = 0;
+            for (int i = CareerXPThresholds.Length - 1; i >= 0; i--)
+            {
+                if (totalXP >= CareerXPThresholds[i])
+                {
+                    newLevel = i;
+                    break;
+                }
+            }
+
+            if (newLevel > currentCareerLevel)
+            {
+                currentCareerLevel = newLevel;
+                Debug.Log($"[PlayerProgress] Career level up! Now: {GetCareerLevel()} (XP: {totalXP})");
+            }
+        }
+
+        public Core.CareerLevel GetCareerLevel()
+        {
+            return (Core.CareerLevel)currentCareerLevel;
+        }
+
+        public int GetXPForNextLevel()
+        {
+            if (currentCareerLevel >= CareerXPThresholds.Length - 1)
+                return 0; // Already max level
+            return CareerXPThresholds[currentCareerLevel + 1] - totalXP;
+        }
+
+        public float GetXPProgressToNextLevel()
+        {
+            if (currentCareerLevel >= CareerXPThresholds.Length - 1)
+                return 1f;
+            int currentThreshold = CareerXPThresholds[currentCareerLevel];
+            int nextThreshold = CareerXPThresholds[currentCareerLevel + 1];
+            return (float)(totalXP - currentThreshold) / (nextThreshold - currentThreshold);
+        }
+
+        public bool IsTaskUnlocked(string taskId)
+        {
+            // All beginner tasks are always unlocked
+            if (taskId == "panel-inspection-residential" || taskId == "circuit-wiring-20a" || taskId == "outlet-installation-duplex")
+                return true;
+
+            // Check if explicitly unlocked
+            if (unlockedTaskIds.Contains(taskId))
+                return true;
+
+            // Journeyman tasks unlock at Journeyman level
+            if (currentCareerLevel >= 1 &&
+                (taskId == "switch-wiring-3way" || taskId == "gfci-testing-residential" || taskId == "conduit-bending-emt"))
+                return true;
+
+            // Master tasks unlock at Master level
+            if (currentCareerLevel >= 2 && taskId == "troubleshooting-residential")
+                return true;
+
+            return false;
+        }
+
+        public void UnlockTask(string taskId)
+        {
+            if (!unlockedTaskIds.Contains(taskId))
+                unlockedTaskIds.Add(taskId);
         }
 
         public float GetBestScore(string taskId, string mode)

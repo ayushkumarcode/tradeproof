@@ -103,6 +103,204 @@ namespace TradeProof.Data
                 }
             };
             certifications.Add(necCompliance);
+
+            // GFCI Safety Specialist
+            CertificationData gfciSafety = new CertificationData();
+            gfciSafety.certificationId = "cert-gfci-safety";
+            gfciSafety.certificationName = "GFCI Safety Specialist";
+            gfciSafety.description = "Demonstrate expertise in GFCI protection testing, troubleshooting, and replacement per NEC 210.8.";
+            gfciSafety.issuingBody = "TradeProof VR Training";
+            gfciSafety.difficulty = "intermediate";
+            gfciSafety.estimatedStudyHours = 6f;
+            gfciSafety.requirements = new List<CertificationRequirement>
+            {
+                new CertificationRequirement
+                {
+                    taskId = "gfci-testing-residential",
+                    mode = "Test",
+                    minimumScore = 85f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "outlet-installation-duplex",
+                    mode = "Test",
+                    minimumScore = 80f,
+                    required = true
+                }
+            };
+            certifications.Add(gfciSafety);
+
+            // Conduit Expert
+            CertificationData conduitExpert = new CertificationData();
+            conduitExpert.certificationId = "cert-conduit-expert";
+            conduitExpert.certificationName = "Conduit Bending Expert";
+            conduitExpert.description = "Master EMT conduit bending techniques including 90-degree bends, offsets, and saddle bends per NEC 358.";
+            conduitExpert.issuingBody = "TradeProof VR Training";
+            conduitExpert.difficulty = "intermediate";
+            conduitExpert.estimatedStudyHours = 8f;
+            conduitExpert.requirements = new List<CertificationRequirement>
+            {
+                new CertificationRequirement
+                {
+                    taskId = "conduit-bending-emt",
+                    mode = "Test",
+                    minimumScore = 85f,
+                    required = true
+                }
+            };
+            certifications.Add(conduitExpert);
+
+            // Troubleshooting Pro
+            CertificationData troubleshootingPro = new CertificationData();
+            troubleshootingPro.certificationId = "cert-troubleshooting-pro";
+            troubleshootingPro.certificationName = "Troubleshooting Professional";
+            troubleshootingPro.description = "Proven ability to diagnose and repair residential electrical faults using systematic troubleshooting methodology.";
+            troubleshootingPro.issuingBody = "TradeProof VR Training";
+            troubleshootingPro.difficulty = "advanced";
+            troubleshootingPro.estimatedStudyHours = 12f;
+            troubleshootingPro.requirements = new List<CertificationRequirement>
+            {
+                new CertificationRequirement
+                {
+                    taskId = "troubleshooting-residential",
+                    mode = "Test",
+                    minimumScore = 80f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "panel-inspection-residential",
+                    mode = "Test",
+                    minimumScore = 85f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "circuit-wiring-20a",
+                    mode = "Test",
+                    minimumScore = 85f,
+                    required = true
+                }
+            };
+            certifications.Add(troubleshootingPro);
+
+            // Complete Residential Electrician
+            CertificationData residentialComplete = new CertificationData();
+            residentialComplete.certificationId = "cert-residential-complete";
+            residentialComplete.certificationName = "Complete Residential Electrician";
+            residentialComplete.description = "Comprehensive certification covering all residential electrical skills: inspection, wiring, outlets, switches, GFCI, and troubleshooting.";
+            residentialComplete.issuingBody = "TradeProof VR Training";
+            residentialComplete.difficulty = "advanced";
+            residentialComplete.estimatedStudyHours = 20f;
+            residentialComplete.requirements = new List<CertificationRequirement>
+            {
+                new CertificationRequirement
+                {
+                    taskId = "panel-inspection-residential",
+                    mode = "Test",
+                    minimumScore = 85f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "circuit-wiring-20a",
+                    mode = "Test",
+                    minimumScore = 85f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "outlet-installation-duplex",
+                    mode = "Test",
+                    minimumScore = 85f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "switch-wiring-3way",
+                    mode = "Test",
+                    minimumScore = 80f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "gfci-testing-residential",
+                    mode = "Test",
+                    minimumScore = 80f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "troubleshooting-residential",
+                    mode = "Test",
+                    minimumScore = 75f,
+                    required = true
+                }
+            };
+            certifications.Add(residentialComplete);
+
+            // Master Electrician
+            CertificationData masterElectrician = new CertificationData();
+            masterElectrician.certificationId = "cert-master-electrician";
+            masterElectrician.certificationName = "Master Electrician";
+            masterElectrician.description = "The highest certification achievable. Requires near-perfect scores on all tasks including conduit bending and advanced troubleshooting.";
+            masterElectrician.issuingBody = "TradeProof VR Training";
+            masterElectrician.difficulty = "expert";
+            masterElectrician.estimatedStudyHours = 40f;
+            masterElectrician.requirements = new List<CertificationRequirement>
+            {
+                new CertificationRequirement
+                {
+                    taskId = "panel-inspection-residential",
+                    mode = "Test",
+                    minimumScore = 95f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "circuit-wiring-20a",
+                    mode = "Test",
+                    minimumScore = 95f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "outlet-installation-duplex",
+                    mode = "Test",
+                    minimumScore = 90f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "switch-wiring-3way",
+                    mode = "Test",
+                    minimumScore = 90f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "gfci-testing-residential",
+                    mode = "Test",
+                    minimumScore = 90f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "conduit-bending-emt",
+                    mode = "Test",
+                    minimumScore = 90f,
+                    required = true
+                },
+                new CertificationRequirement
+                {
+                    taskId = "troubleshooting-residential",
+                    mode = "Test",
+                    minimumScore = 85f,
+                    required = true
+                }
+            };
+            certifications.Add(masterElectrician);
         }
 
         public static List<CertificationData> GetAllCertifications()

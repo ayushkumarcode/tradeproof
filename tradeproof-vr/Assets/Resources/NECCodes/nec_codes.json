@@ -71,6 +71,87 @@
       "visualHintText": "Check the receptacle face plate — what amperage is stamped on it? On a 15A circuit only 15A outlets are allowed. On a 20A circuit you can use 15A or 20A outlets.",
       "category": "outlet",
       "relatedCodes": ["210.21(B)", "Table 210.21(B)(3)"]
+    },
+    {
+      "code": "300.14",
+      "title": "Length of Free Conductors at Outlets, Junctions, and Switch Points",
+      "section": "Article 300 — General Requirements for Wiring Methods and Materials",
+      "simplifiedExplanation": "At each outlet, junction, and switch point, at least 150mm (6 inches) of free conductor must be left for splicing or connecting to devices. At least 75mm (3 inches) must extend outside the box opening. Short wires make connections difficult and unreliable.",
+      "visualHintText": "Check wire length in the box — at least 6 inches of free wire should extend for making connections. Measure from where the wire enters the box.",
+      "category": "wiring",
+      "relatedCodes": ["314.16", "300.15"]
+    },
+    {
+      "code": "110.14",
+      "title": "Electrical Connections — Termination Provisions",
+      "section": "Article 110 — Requirements for Electrical Installations",
+      "simplifiedExplanation": "Connections must be made with devices identified for the wire type and size. Terminals for more than one conductor must be so identified. Torque values specified by the manufacturer must be followed. Loose connections cause arcing, overheating, and fire.",
+      "visualHintText": "Check all screw terminals — are they properly tightened? Use the correct torque. Each terminal should have only one wire unless rated for multiple.",
+      "category": "wiring",
+      "relatedCodes": ["110.14(A)", "110.14(B)", "408.41"]
+    },
+    {
+      "code": "404.2",
+      "title": "Switch Connections",
+      "section": "Article 404 — Switches",
+      "simplifiedExplanation": "Three-way and four-way switches must be wired so that switching occurs only in the ungrounded (hot) conductor. The common terminal of a 3-way switch connects to either the line hot or the load, while the traveler terminals connect to the traveler wires between switches.",
+      "visualHintText": "Identify the common terminal (darker screw) on each 3-way switch. Line hot goes to switch 1 common, load goes to switch 2 common. Travelers connect the brass-colored terminals.",
+      "category": "switching",
+      "relatedCodes": ["404.2(A)", "404.2(B)", "200.7"]
+    },
+    {
+      "code": "200.7",
+      "title": "Use of White or Gray Conductors",
+      "section": "Article 200 — Use and Identification of Grounded Conductors",
+      "simplifiedExplanation": "White or gray conductors shall only be used as grounded (neutral) conductors. Exception: in a switch loop using cable without a neutral, a white wire may be used as an ungrounded conductor if it is permanently re-identified (marked with tape or paint) at each visible and accessible location.",
+      "visualHintText": "In a switch loop using 2-wire cable, the white wire may be used as a hot conductor but must be marked with black or red tape at both ends to show it is NOT a neutral.",
+      "category": "wiring",
+      "relatedCodes": ["200.6", "404.2"]
+    },
+    {
+      "code": "210.8",
+      "title": "Ground-Fault Circuit-Interrupter Protection for Personnel",
+      "section": "Article 210 — Branch Circuits",
+      "simplifiedExplanation": "GFCI protection is required for all 125V, 15A and 20A receptacles in: bathrooms, garages, outdoors, crawl spaces, unfinished basements, kitchens (serving countertops), laundry areas, and within 6 feet of sinks. GFCI outlets detect current imbalances as small as 5mA and trip to prevent electrocution.",
+      "visualHintText": "GFCI outlets have TEST and RESET buttons. Press TEST to trip the GFCI — power should cut off. Press RESET to restore power. If it won't trip or reset, the GFCI is faulty and must be replaced.",
+      "category": "gfci",
+      "relatedCodes": ["210.8(A)", "210.8(B)", "406.4(D)"]
+    },
+    {
+      "code": "406.4",
+      "title": "Receptacle Mounting and Tamper Resistance",
+      "section": "Article 406 — Receptacles, Cord Connectors, and Attachment Plugs",
+      "simplifiedExplanation": "Receptacles must be mounted securely in their boxes. In dwelling units, all 125V 15A and 20A receptacles must be tamper-resistant (TR) type. Tamper-resistant receptacles have internal shutters that prevent insertion of foreign objects into the slots.",
+      "visualHintText": "Check that receptacles are firmly mounted and not loose. In residential locations, look for 'TR' marking on the outlet face indicating tamper resistance.",
+      "category": "outlet",
+      "relatedCodes": ["406.4(D)", "210.52"]
+    },
+    {
+      "code": "358.24",
+      "title": "Bends — Number of Bends (EMT)",
+      "section": "Article 358 — Electrical Metallic Tubing (EMT)",
+      "simplifiedExplanation": "Between pull points (boxes, conduit bodies, fittings), there shall not be more than the equivalent of four quarter bends (360 degrees total) in a single conduit run. Excessive bends make it extremely difficult or impossible to pull wires through the conduit and can damage conductor insulation.",
+      "visualHintText": "Count all the bends in your conduit run. A 90-degree bend = one quarter bend. Total all bends — they must not exceed 360 degrees between junction boxes.",
+      "category": "conduit",
+      "relatedCodes": ["358.28", "358.30", "344.24"]
+    },
+    {
+      "code": "358.28",
+      "title": "Reaming and Deburring (EMT)",
+      "section": "Article 358 — Electrical Metallic Tubing (EMT)",
+      "simplifiedExplanation": "All cut ends of EMT conduit must be reamed or otherwise finished to remove rough edges. Sharp edges on un-reamed conduit will damage wire insulation during pulling, leading to shorts, ground faults, or fire. Always ream both inside and outside edges after cutting.",
+      "visualHintText": "After cutting conduit, use a reaming tool to smooth the inside edges. Run your finger around the cut end — if you feel any sharp burrs, it needs more reaming.",
+      "category": "conduit",
+      "relatedCodes": ["358.24", "300.4"]
+    },
+    {
+      "code": "314.16",
+      "title": "Number of Conductors in Outlet, Device, and Junction Boxes",
+      "section": "Article 314 — Outlet, Device, Pull, and Junction Boxes",
+      "simplifiedExplanation": "Boxes must be large enough to accommodate the number of conductors, devices, and fittings they contain. Each conductor counts as a volume allowance based on its gauge (14 AWG = 2.0 cubic inches, 12 AWG = 2.25 cubic inches). Overfilling a box creates a fire hazard from damaged insulation and poor heat dissipation.",
+      "visualHintText": "Count all conductors entering the box and calculate total volume. Compare to the box volume stamped on the box. Include allowances for devices, clamps, and grounds.",
+      "category": "wiring",
+      "relatedCodes": ["314.16(A)", "314.16(B)", "300.14"]
     }
   ]
 }

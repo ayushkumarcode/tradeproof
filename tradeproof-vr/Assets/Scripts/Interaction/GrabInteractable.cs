@@ -261,7 +261,7 @@ namespace TradeProof.Interaction
             {
                 rb.isKinematic = wasKinematic;
                 rb.useGravity = wasGravity;
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
             }
 

@@ -99,20 +99,79 @@ namespace TradeProof.Interaction
             // Wire strippers slot
             ToolSlot strippersSlot = new ToolSlot();
             strippersSlot.slotName = "Wire Strippers";
-            strippersSlot.localOffset = new Vector3(-0.15f, 0f, 0f);
+            strippersSlot.localOffset = new Vector3(-0.3f, 0f, 0f);
             toolSlots.Add(strippersSlot);
 
             // Screwdriver slot
             ToolSlot screwdriverSlot = new ToolSlot();
             screwdriverSlot.slotName = "Screwdriver";
-            screwdriverSlot.localOffset = new Vector3(0f, 0f, 0f);
+            screwdriverSlot.localOffset = new Vector3(-0.15f, 0f, 0f);
             toolSlots.Add(screwdriverSlot);
 
             // Voltage tester slot
             ToolSlot testerSlot = new ToolSlot();
             testerSlot.slotName = "Voltage Tester";
-            testerSlot.localOffset = new Vector3(0.15f, 0f, 0f);
+            testerSlot.localOffset = new Vector3(0f, 0f, 0f);
             toolSlots.Add(testerSlot);
+
+            // Multimeter slot
+            ToolSlot multimeterSlot = new ToolSlot();
+            multimeterSlot.slotName = "Multimeter";
+            multimeterSlot.localOffset = new Vector3(0.15f, 0f, 0f);
+            toolSlots.Add(multimeterSlot);
+
+            // Conduit bender slot
+            ToolSlot benderSlot = new ToolSlot();
+            benderSlot.slotName = "Conduit Bender";
+            benderSlot.localOffset = new Vector3(0.3f, 0f, 0f);
+            toolSlots.Add(benderSlot);
+        }
+
+        public void ConfigureForTask(string[] requiredTools)
+        {
+            // Clear existing slots
+            toolSlots.Clear();
+
+            if (requiredTools == null || requiredTools.Length == 0)
+            {
+                CreateDefaultSlots();
+                return;
+            }
+
+            float spacing = 0.15f;
+            float startX = -(requiredTools.Length - 1) * spacing / 2f;
+
+            for (int i = 0; i < requiredTools.Length; i++)
+            {
+                ToolSlot slot = new ToolSlot();
+                slot.slotName = requiredTools[i];
+                slot.localOffset = new Vector3(startX + i * spacing, 0f, 0f);
+                toolSlots.Add(slot);
+            }
+
+            Debug.Log($"[ToolBelt] Configured {requiredTools.Length} tool slots for task");
+        }
+
+        public ToolSlot GetSlotByName(string toolName)
+        {
+            foreach (var slot in toolSlots)
+            {
+                if (slot.slotName == toolName) return slot;
+            }
+            return null;
+        }
+
+        public void ClearAllSlots()
+        {
+            foreach (var slot in toolSlots)
+            {
+                if (slot.tool != null)
+                {
+                    Destroy(slot.tool.gameObject);
+                    slot.tool = null;
+                }
+                slot.isOccupied = false;
+            }
         }
 
         private void Update()

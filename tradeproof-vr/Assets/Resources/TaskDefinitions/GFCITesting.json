@@ -1,0 +1,139 @@
+{
+  "taskId": "gfci-testing-residential",
+  "taskName": "GFCI Testing & Troubleshooting",
+  "description": "Test three daisy-chained GFCI outlets to identify and replace a faulty unit. Verify proper operation of all downstream protection.",
+  "difficulty": "intermediate",
+  "taskType": "testing",
+  "badgeAwarded": "gfci-testing-level-1",
+  "timeLimit": 240,
+  "passingScore": 80,
+  "jobSiteType": "residential-kitchen",
+  "requiredTools": ["voltage-tester", "multimeter"],
+  "necCodes": ["210.8", "406.4", "110.14"],
+  "prerequisites": ["outlet-installation-duplex"],
+  "violations": [],
+  "steps": [
+    {
+      "id": "confirm-power",
+      "order": 1,
+      "description": "Confirm power is present at the circuit using a voltage tester",
+      "necCode": "",
+      "action": "confirm-power",
+      "targetComponent": "gfci-1",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "power-confirmed",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Before testing GFCIs, use your voltage tester to confirm the circuit is energized. Insert the tester into the first GFCI outlet — you should read approximately 120V."
+    },
+    {
+      "id": "test-gfci",
+      "order": 2,
+      "description": "Press the TEST button on each GFCI to check trip function",
+      "necCode": "210.8",
+      "action": "test-gfci",
+      "targetComponent": "gfci-outlets",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "tested",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Press the TEST button on each GFCI outlet. A properly functioning GFCI will trip immediately, cutting power. The button should click and stay pushed in. If a GFCI fails to trip, it is faulty and must be replaced per NEC 210.8."
+    },
+    {
+      "id": "verify-downstream-dead",
+      "order": 3,
+      "description": "Verify downstream outlets are de-energized when GFCI is tripped",
+      "necCode": "210.8",
+      "action": "verify-downstream-dead",
+      "targetComponent": "downstream-outlets",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "verified-dead",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "When a GFCI trips, all outlets downstream (on the LOAD side) should also lose power. Test each downstream outlet with your voltage tester to confirm 0V. If downstream outlets still have power, the GFCI may not be wired correctly."
+    },
+    {
+      "id": "reset-gfci",
+      "order": 4,
+      "description": "Press RESET button on each GFCI to restore power",
+      "necCode": "",
+      "action": "reset-gfci",
+      "targetComponent": "gfci-outlets",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "reset",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Press the RESET button to restore power. The button should click and stay flush with the outlet face. If the RESET button won't hold, the GFCI is faulty. A properly functioning GFCI will restore power when reset."
+    },
+    {
+      "id": "trace-daisy-chain",
+      "order": 5,
+      "description": "Trace the daisy-chain wiring between GFCI outlets",
+      "necCode": "406.4",
+      "action": "trace-daisy-chain",
+      "targetComponent": "wiring-path",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "traced",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Follow the wiring from the panel to the first GFCI (LINE side), then from the first GFCI LOAD terminals to the second GFCI LINE terminals, and so on. Understanding the chain helps you isolate which GFCI is causing the problem."
+    },
+    {
+      "id": "find-faulty-gfci",
+      "order": 6,
+      "description": "Identify which GFCI outlet is faulty",
+      "necCode": "210.8",
+      "action": "find-faulty-gfci",
+      "targetComponent": "faulty-gfci",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "fault-found",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "The faulty GFCI is the one that fails to trip when TEST is pressed, or fails to hold reset. A GFCI that does not trip is a serious safety hazard — it cannot protect against ground faults and electrocution."
+    },
+    {
+      "id": "replace-faulty-gfci",
+      "order": 7,
+      "description": "Replace the faulty GFCI with a new one and verify operation",
+      "necCode": "406.4",
+      "action": "replace-faulty-gfci",
+      "targetComponent": "replacement-gfci",
+      "requiredWireGauge": "",
+      "requiredWireColor": "",
+      "validation": {
+        "type": "action",
+        "expectedValue": "replaced",
+        "snapPointId": "",
+        "tolerance": 0
+      },
+      "hintText": "Turn off the breaker before replacing the GFCI. Disconnect the LINE and LOAD wires from the faulty unit, connect them to the new GFCI (LINE to LINE, LOAD to LOAD), mount it, and test with the TEST/RESET buttons. Verify all downstream outlets are protected."
+    }
+  ],
+  "measurements": [],
+  "dialogues": [],
+  "faults": []
+}

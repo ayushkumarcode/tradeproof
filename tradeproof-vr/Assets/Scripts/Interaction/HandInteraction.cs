@@ -90,8 +90,8 @@ namespace TradeProof.Interaction
                 OVRHand[] hands = FindObjectsOfType<OVRHand>();
                 foreach (var hand in hands)
                 {
-                    // Identify the correct hand by checking the OVRHand's HandType
-                    if (hand.HandType == handType)
+                    // Identify the correct hand via public GetHand() API
+                    if ((OVRHand.Hand)hand.GetHand() == handType)
                     {
                         ovrHand = hand;
                         break;
