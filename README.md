@@ -126,7 +126,7 @@ Or from command line:
 
 ## Team
 
-Built by Anish Cheraku and Ayush Kumar at TreeHacks 2026.
+Built by Anish Cheraku, Hayden Azan, and Ryan Fujii at TreeHacks 2026.
 
 ## License
 
